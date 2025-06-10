@@ -1,4 +1,4 @@
-import { users, walkers, bookings, type User, type InsertUser, type Walker, type InsertWalker, type Booking, type InsertBooking } from "@shared/schema";
+import { users, walkers, bookings, type User, type InsertUser, type UpdateUserProfile, type Walker, type InsertWalker, type Booking, type InsertBooking } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -6,6 +6,7 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUserProfile(id: number, profile: UpdateUserProfile): Promise<User | undefined>;
   
   getAllWalkers(): Promise<Walker[]>;
   getWalker(id: number): Promise<Walker | undefined>;
@@ -14,6 +15,7 @@ export interface IStorage {
   getAllBookings(): Promise<Booking[]>;
   getBooking(id: number): Promise<Booking | undefined>;
   getBookingsByWalker(walkerId: number): Promise<Booking[]>;
+  getBookingsByUser(userId: number): Promise<Booking[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateBookingStatus(id: number, status: string): Promise<Booking | undefined>;
 }
@@ -35,6 +37,15 @@ export class DatabaseStorage implements IStorage {
       .values(insertUser)
       .returning();
     return user;
+  }
+
+  async updateUserProfile(id: number, profile: UpdateUserProfile): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set(profile)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
   }
 
   async getAllWalkers(): Promise<Walker[]> {
