@@ -145,9 +145,12 @@ export default function Bookings() {
                       </h3>
                       <p className="text-sm text-neutral-600">for {booking.dogName}</p>
                     </div>
-                    <Badge className={getStatusColor(booking.status)}>
-                      {booking.status}
-                    </Badge>
+                    <div className="flex items-center space-x-2">
+                      <Badge className={getStatusColor(booking.status)}>
+                        {booking.status}
+                      </Badge>
+                      <Settings className="w-4 h-4 text-neutral-400" />
+                    </div>
                   </div>
 
                   <div className="space-y-2 text-sm text-neutral-600">
@@ -177,11 +180,45 @@ export default function Bookings() {
                     </div>
                   )}
 
-                  <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-sm text-neutral-600">Total paid</span>
-                    <span className="font-semibold text-neutral-900">
-                      {formatPrice(booking.total)}
-                    </span>
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm text-neutral-600">Total paid</span>
+                      <span className="font-semibold text-neutral-900">
+                        {formatPrice(booking.total)}
+                      </span>
+                    </div>
+                    
+                    {/* Admin Controls */}
+                    <div className="flex items-center justify-between space-x-2">
+                      <div className="flex items-center space-x-2">
+                        <Select 
+                          value={booking.status} 
+                          onValueChange={(value) => handleStatusChange(booking.id, value)}
+                          disabled={updateStatusMutation.isPending}
+                        >
+                          <SelectTrigger className="w-32 h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="confirmed">Confirmed</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTestEmail(booking.id)}
+                        disabled={testEmailMutation.isPending}
+                        className="text-xs"
+                      >
+                        <Mail className="w-3 h-3 mr-1" />
+                        {testEmailMutation.isPending ? "Sending..." : "Test Email"}
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
