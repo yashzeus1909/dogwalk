@@ -1,5 +1,6 @@
-import { Heart, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoImage from "@assets/gold bone _1749526479486.jpeg";
 
 export default function Header() {
   return (
@@ -7,8 +8,12 @@ export default function Header() {
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white fill-white" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+              <img 
+                src={logoImage} 
+                alt="PawWalk Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <h1 className="text-xl font-bold text-neutral-900">PawWalk</h1>
           </div>

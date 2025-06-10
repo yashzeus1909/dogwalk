@@ -114,7 +114,14 @@ export class MemStorage implements IStorage {
 
   async createWalker(insertWalker: InsertWalker): Promise<Walker> {
     const id = this.currentWalkerId++;
-    const walker: Walker = { ...insertWalker, id };
+    const walker: Walker = { 
+      ...insertWalker, 
+      id,
+      badges: insertWalker.badges || [],
+      backgroundCheck: insertWalker.backgroundCheck || false,
+      insured: insertWalker.insured || false,
+      certified: insertWalker.certified || false
+    };
     this.walkers.set(id, walker);
     return walker;
   }
@@ -138,6 +145,8 @@ export class MemStorage implements IStorage {
     const booking: Booking = { 
       ...insertBooking, 
       id, 
+      status: insertBooking.status || "pending",
+      instructions: insertBooking.instructions || null,
       createdAt: new Date() 
     };
     this.bookings.set(id, booking);
