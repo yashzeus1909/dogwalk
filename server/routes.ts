@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertBookingSchema } from "@shared/schema";
+import { sendBookingConfirmationEmail, sendBookingStatusUpdateEmail } from "./email";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -34,6 +35,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const bookingData = insertBookingSchema.parse(req.body);
       const booking = await storage.createBooking(bookingData);
+      
+      // Get walker information for email
+      const walker = await storage.getWalker(booking.walkerId);
+      
+      if (walker) {
+        // Send booking confirmation email (don't wait for it to complete)
+        sendBookingConfirmationEmail({ booking, walker }).catch(error => {
+          console.error("Failed to send booking confirmation email:", error);
+        });
+      }
+      
       res.status(201).json(booking);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -84,9 +96,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
       }
+
+      // Get walker information for email
+      const walker = await storage.getWalker(booking.walkerId);
+      
+      if (walker) {
+        // Send status update email (don't wait for it to complete)
+        sendBookingStatusUpdateEmail({ booking, walker }, status).catch(error => {
+          console.error("Failed to send status update email:", error);
+        });
+      }
+
       res.json(booking);
     } catch (error) {
       res.status(500).json({ message: "Failed to update booking status" });
+    }
+  });
+
+  // Test email endpoint (for development/testing)
+  app.post("/api/test-email", async (req, res) => {
+    try {
+      const { bookingId } = req.body;
+      
+      if (!bookingId) {
+        return res.status(400).json({ message: "Booking ID is required" });
+      }
+      
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      const walker = await storage.getWalker(booking.walkerId);
+      if (!walker) {
+        return res.status(404).json({ message: "Walker not found" });
+      }
+      
+      const emailSent = await sendBookingConfirmationEmail({ booking, walker });
+      
+      res.json({ 
+        success: emailSent,
+        message: emailSent ? "Test email sent successfully" : "Failed to send test email"
+      });
+    } catch (error) {
+      console.error("Test email error:", error);
+      res.status(500).json({ message: "Failed to send test email" });
     }
   });
 

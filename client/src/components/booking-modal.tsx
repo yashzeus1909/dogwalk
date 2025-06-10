@@ -83,7 +83,7 @@ export default function BookingModal({ walker, isOpen, onClose }: BookingModalPr
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       toast({
         title: "Booking Confirmed!",
-        description: "Your dog walking service has been booked successfully.",
+        description: "Your dog walking service has been booked successfully. A confirmation email has been sent to you.",
       });
       onClose();
       form.reset();

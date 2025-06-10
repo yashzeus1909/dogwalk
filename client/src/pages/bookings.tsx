@@ -1,18 +1,67 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Booking, Walker } from "@shared/schema";
 import Header from "@/components/header";
 import BottomNavigation from "@/components/bottom-navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Clock, MapPin, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { CalendarDays, Clock, MapPin, Phone, Mail, Settings } from "lucide-react";
 
 export default function Bookings() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
   const { data: bookings = [], isLoading } = useQuery<Booking[]>({
     queryKey: ['/api/bookings'],
   });
 
   const { data: walkers = [] } = useQuery<Walker[]>({
     queryKey: ['/api/walkers'],
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ bookingId, status }: { bookingId: number; status: string }) => {
+      const response = await apiRequest("PATCH", `/api/bookings/${bookingId}/status`, { status });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      toast({
+        title: "Status Updated",
+        description: "Booking status has been updated and customer has been notified via email.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update booking status.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const testEmailMutation = useMutation({
+    mutationFn: async (bookingId: number) => {
+      const response = await apiRequest("POST", "/api/test-email", { bookingId });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: data.success ? "Email Sent" : "Email Failed",
+        description: data.message,
+        variant: data.success ? "default" : "destructive",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Email Test Failed",
+        description: "Failed to send test email.",
+        variant: "destructive",
+      });
+    },
   });
 
   const getWalkerName = (walkerId: number) => {
@@ -32,6 +81,14 @@ export default function Bookings() {
 
   const formatPrice = (cents: number) => {
     return `$${(cents / 100).toFixed(2)}`;
+  };
+
+  const handleStatusChange = (bookingId: number, newStatus: string) => {
+    updateStatusMutation.mutate({ bookingId, status: newStatus });
+  };
+
+  const handleTestEmail = (bookingId: number) => {
+    testEmailMutation.mutate(bookingId);
   };
 
   if (isLoading) {
