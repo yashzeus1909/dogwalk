@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBookingSchema } from "@shared/schema";
+import { insertBookingSchema, updateUserProfileSchema } from "@shared/schema";
 import { sendBookingConfirmationEmail, sendBookingStatusUpdateEmail } from "./email";
 import { z } from "zod";
 
@@ -110,6 +110,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(booking);
     } catch (error) {
       res.status(500).json({ message: "Failed to update booking status" });
+    }
+  });
+
+  // Get user profile
+  app.get("/api/profile/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      // Don't send password in response
+      const { password, ...userProfile } = user;
+      res.json(userProfile);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch profile" });
+    }
+  });
+
+  // Update user profile
+  app.patch("/api/profile/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const profileData = updateUserProfileSchema.parse(req.body);
+      const user = await storage.updateUserProfile(id, profileData);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      // Don't send password in response
+      const { password, ...userProfile } = user;
+      res.json(userProfile);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid profile data", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Get user bookings
+  app.get("/api/profile/:id/bookings", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const bookings = await storage.getBookingsByUser(id);
+      res.json(bookings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch user bookings" });
     }
   });
 

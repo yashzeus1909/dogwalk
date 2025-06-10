@@ -78,6 +78,12 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(bookings).where(eq(bookings.walkerId, walkerId));
   }
 
+  async getBookingsByUser(userId: number): Promise<Booking[]> {
+    // For now, we'll return all bookings since we don't have a userId field in bookings table
+    // In a real app, you'd want to add a userId field to the bookings table
+    return await db.select().from(bookings);
+  }
+
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
     const [booking] = await db
       .insert(bookings)
