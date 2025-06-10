@@ -1,4 +1,6 @@
 import { users, walkers, bookings, type User, type InsertUser, type Walker, type InsertWalker, type Booking, type InsertBooking } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -16,152 +18,71 @@ export interface IStorage {
   updateBookingStatus(id: number, status: string): Promise<Booking | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private walkers: Map<number, Walker>;
-  private bookings: Map<number, Booking>;
-  private currentUserId: number;
-  private currentWalkerId: number;
-  private currentBookingId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.walkers = new Map();
-    this.bookings = new Map();
-    this.currentUserId = 1;
-    this.currentWalkerId = 1;
-    this.currentBookingId = 1;
-
-    // Initialize with sample walkers
-    this.initializeWalkers();
-  }
-
-  private initializeWalkers() {
-    const sampleWalkers: InsertWalker[] = [
-      {
-        name: "Sarah M.",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-        rating: 49,
-        reviewCount: 127,
-        distance: "0.8 miles away",
-        price: 25,
-        description: "Experienced dog walker with 5+ years caring for dogs of all sizes. I love long walks in the park and ensuring your furry friend gets the exercise they need!",
-        availability: "Available today",
-        badges: ["Background checked"],
-        backgroundCheck: true,
-        insured: false,
-        certified: false,
-      },
-      {
-        name: "Mike R.",
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-        rating: 47,
-        reviewCount: 89,
-        distance: "1.2 miles away",
-        price: 22,
-        description: "Former veterinary technician turned professional dog walker. I specialize in high-energy dogs and provide detailed updates with photos after each walk.",
-        availability: "Available tomorrow",
-        badges: ["Insured"],
-        backgroundCheck: false,
-        insured: true,
-        certified: false,
-      },
-      {
-        name: "Emma L.",
-        image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
-        rating: 50,
-        reviewCount: 45,
-        distance: "0.5 miles away",
-        price: 30,
-        description: "Certified dog trainer offering walking services. Perfect for dogs that need behavioral guidance or socialization during their walks. Premium service guaranteed!",
-        availability: "Available today",
-        badges: ["Certified trainer"],
-        backgroundCheck: true,
-        insured: true,
-        certified: true,
-      },
-    ];
-
-    sampleWalkers.forEach(walker => {
-      this.createWalker(walker);
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getAllWalkers(): Promise<Walker[]> {
-    return Array.from(this.walkers.values());
+    return await db.select().from(walkers);
   }
 
   async getWalker(id: number): Promise<Walker | undefined> {
-    return this.walkers.get(id);
+    const [walker] = await db.select().from(walkers).where(eq(walkers.id, id));
+    return walker || undefined;
   }
 
   async createWalker(insertWalker: InsertWalker): Promise<Walker> {
-    const id = this.currentWalkerId++;
-    const walker: Walker = { 
-      ...insertWalker, 
-      id,
-      badges: insertWalker.badges || [],
-      backgroundCheck: insertWalker.backgroundCheck || false,
-      insured: insertWalker.insured || false,
-      certified: insertWalker.certified || false
-    };
-    this.walkers.set(id, walker);
+    const [walker] = await db
+      .insert(walkers)
+      .values(insertWalker)
+      .returning();
     return walker;
   }
 
   async getAllBookings(): Promise<Booking[]> {
-    return Array.from(this.bookings.values());
+    return await db.select().from(bookings);
   }
 
   async getBooking(id: number): Promise<Booking | undefined> {
-    return this.bookings.get(id);
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
+    return booking || undefined;
   }
 
   async getBookingsByWalker(walkerId: number): Promise<Booking[]> {
-    return Array.from(this.bookings.values()).filter(
-      booking => booking.walkerId === walkerId
-    );
+    return await db.select().from(bookings).where(eq(bookings.walkerId, walkerId));
   }
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
-    const id = this.currentBookingId++;
-    const booking: Booking = { 
-      ...insertBooking, 
-      id, 
-      status: insertBooking.status || "pending",
-      instructions: insertBooking.instructions || null,
-      createdAt: new Date() 
-    };
-    this.bookings.set(id, booking);
+    const [booking] = await db
+      .insert(bookings)
+      .values(insertBooking)
+      .returning();
     return booking;
   }
 
   async updateBookingStatus(id: number, status: string): Promise<Booking | undefined> {
-    const booking = this.bookings.get(id);
-    if (booking) {
-      const updatedBooking = { ...booking, status };
-      this.bookings.set(id, updatedBooking);
-      return updatedBooking;
-    }
-    return undefined;
+    const [booking] = await db
+      .update(bookings)
+      .set({ status })
+      .where(eq(bookings.id, id))
+      .returning();
+    return booking || undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
