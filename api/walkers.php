@@ -4,82 +4,98 @@ header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET, POST");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-// Sample walkers data for demonstration
-$walkers = [
-    [
-        "id" => 1,
-        "name" => "Sarah M.",
-        "image" => "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face",
-        "rating" => 49,
-        "reviewCount" => 127,
-        "distance" => "0.5 miles away",
-        "price" => 25,
-        "description" => "Experienced dog walker with 5+ years caring for pets of all sizes. I love long walks and ensuring your furry friend gets the exercise they need!",
-        "availability" => "Available today",
-        "badges" => ["Background Check", "Insured", "5-Star Rated"],
-        "backgroundCheck" => true,
-        "insured" => true,
-        "certified" => true
-    ],
-    [
-        "id" => 2,
-        "name" => "Mike T.",
-        "image" => "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-        "rating" => 48,
-        "reviewCount" => 89,
-        "distance" => "0.8 miles away",
-        "price" => 22,
-        "description" => "Professional pet care specialist who treats every dog like family. Available for walks, feeding, and basic training.",
-        "availability" => "Available tomorrow",
-        "badges" => ["Certified", "Experienced"],
-        "backgroundCheck" => true,
-        "insured" => false,
-        "certified" => true
-    ],
-    [
-        "id" => 3,
-        "name" => "Emma K.",
-        "image" => "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-        "rating" => 50,
-        "reviewCount" => 203,
-        "distance" => "1.2 miles away",
-        "price" => 30,
-        "description" => "Veterinary student with a passion for animal care. Specializing in senior dogs and those with special needs.",
-        "availability" => "Available this week",
-        "badges" => ["Vet Student", "Special Needs", "Top Rated"],
-        "backgroundCheck" => true,
-        "insured" => true,
-        "certified" => true
-    ]
-];
+include_once '../config/database.php';
+include_once '../models/Walker.php';
+
+$database = new Database();
+$db = $database->getConnection();
+
+if ($db === null) {
+    http_response_code(500);
+    echo json_encode(array("message" => "Database connection failed."));
+    exit();
+}
+
+$walker = new Walker($db);
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch($method) {
     case 'GET':
-        $result = $walkers;
-        
-        // Handle search filtering
-        if(isset($_GET['search']) && isset($_GET['location']) && !empty($_GET['location'])) {
-            $location = strtolower($_GET['location']);
-            $result = array_filter($walkers, function($walker) use ($location) {
-                return strpos(strtolower($walker['distance']), $location) !== false ||
-                       strpos(strtolower($walker['name']), $location) !== false;
-            });
-            $result = array_values($result); // Re-index array
+        if(isset($_GET['search'])) {
+            $location = isset($_GET['location']) ? $_GET['location'] : "";
+            $service_type = isset($_GET['service_type']) ? $_GET['service_type'] : "";
+            $stmt = $walker->search($location, $service_type);
+        } else {
+            $stmt = $walker->read();
         }
         
+        $walkers_arr = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            extract($row);
+            
+            // Convert PostgreSQL array to PHP array
+            $badges_array = array();
+            if ($badges) {
+                // Remove curly braces and split by comma
+                $badges_clean = trim($badges, '{}');
+                if (!empty($badges_clean)) {
+                    $badges_array = array_map('trim', explode(',', $badges_clean));
+                    // Remove quotes if present
+                    $badges_array = array_map(function($badge) {
+                        return trim($badge, '"');
+                    }, $badges_array);
+                }
+            }
+            
+            $walker_item = array(
+                "id" => (int)$id,
+                "name" => $name,
+                "image" => $image,
+                "rating" => (int)$rating,
+                "reviewCount" => (int)$review_count,
+                "distance" => $distance,
+                "price" => (int)$price,
+                "description" => $description,
+                "availability" => $availability,
+                "badges" => $badges_array,
+                "backgroundCheck" => (bool)$background_check,
+                "insured" => (bool)$insured,
+                "certified" => (bool)$certified
+            );
+
+            array_push($walkers_arr, $walker_item);
+        }
+
         http_response_code(200);
-        echo json_encode($result);
+        echo json_encode($walkers_arr);
         break;
 
     case 'POST':
         $data = json_decode(file_get_contents("php://input"));
 
         if(!empty($data->name) && !empty($data->price)) {
-            // In a real app, this would save to database
-            http_response_code(201);
-            echo json_encode(array("message" => "Walker was created.", "id" => count($walkers) + 1));
+            $walker->name = $data->name;
+            $walker->image = $data->image ?? '';
+            $walker->rating = $data->rating ?? 0;
+            $walker->review_count = $data->review_count ?? 0;
+            $walker->distance = $data->distance ?? '';
+            $walker->price = $data->price;
+            $walker->description = $data->description ?? '';
+            $walker->availability = $data->availability ?? '';
+            $walker->badges = isset($data->badges) ? '{' . implode(',', $data->badges) . '}' : '{}';
+            $walker->background_check = $data->background_check ?? false;
+            $walker->insured = $data->insured ?? false;
+            $walker->certified = $data->certified ?? false;
+
+            if($walker->create()) {
+                http_response_code(201);
+                echo json_encode(array("message" => "Walker was created."));
+            } else {
+                http_response_code(503);
+                echo json_encode(array("message" => "Unable to create walker."));
+            }
         } else {
             http_response_code(400);
             echo json_encode(array("message" => "Unable to create walker. Data is incomplete."));
