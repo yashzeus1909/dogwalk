@@ -35,19 +35,18 @@ A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQu
 ### Option 1: Using Existing PostgreSQL Database
 
 1. **Download and extract all project files**
-2. **Configure database connection** by setting environment variables:
+2. **Configure environment**:
    ```bash
-   export DATABASE_URL="postgresql://username:password@host:port/database_name"
-   # OR set individual variables:
-   export PGHOST="localhost"
-   export PGPORT="5432"
-   export PGDATABASE="pawwalk_db"
-   export PGUSER="your_username"
-   export PGPASSWORD="your_password"
+   cp .env.example .env
+   # Edit .env file with your database credentials
+   ```
+   Update `.env` with your PostgreSQL connection details:
+   ```
+   DATABASE_URL=postgresql://your_user:your_password@localhost:5432/your_database
    ```
 3. **Initialize the database**:
    ```bash
-   psql -h localhost -U your_username -d your_database -f database/schema.sql
+   php scripts/setup_database.php
    ```
 4. **Start the server**:
    ```bash
@@ -77,14 +76,18 @@ A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQu
    \q
    ```
 
-3. **Set environment variables**:
+3. **Configure environment**:
    ```bash
-   export DATABASE_URL="postgresql://pawwalk_user:secure_password@localhost:5432/pawwalk_db"
+   cp .env.example .env
+   ```
+   Edit `.env` and update the DATABASE_URL:
+   ```
+   DATABASE_URL=postgresql://pawwalk_user:secure_password@localhost:5432/pawwalk_db
    ```
 
 4. **Initialize database with sample data**:
    ```bash
-   psql -h localhost -U pawwalk_user -d pawwalk_db -f database/schema.sql
+   php scripts/setup_database.php
    ```
 
 5. **Start the application**:

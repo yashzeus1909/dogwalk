@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/env.php';
+
 class Database {
     private $host;
     private $db_name;
@@ -8,8 +10,11 @@ class Database {
     public $conn;
 
     public function __construct() {
+        // Load environment configuration
+        EnvLoader::load();
+        
         // Get database configuration from environment variables
-        $database_url = getenv('DATABASE_URL');
+        $database_url = EnvLoader::get('DATABASE_URL');
         
         if ($database_url) {
             // Parse DATABASE_URL for PostgreSQL
@@ -21,11 +26,11 @@ class Database {
             $this->password = $url['pass'];
         } else {
             // Fallback to individual environment variables
-            $this->host = getenv('PGHOST') ?: 'localhost';
-            $this->port = getenv('PGPORT') ?: 5432;
-            $this->db_name = getenv('PGDATABASE') ?: 'pawwalk_db';
-            $this->username = getenv('PGUSER') ?: 'postgres';
-            $this->password = getenv('PGPASSWORD') ?: '';
+            $this->host = EnvLoader::get('PGHOST', 'localhost');
+            $this->port = EnvLoader::get('PGPORT', 5432);
+            $this->db_name = EnvLoader::get('PGDATABASE', 'pawwalk_db');
+            $this->username = EnvLoader::get('PGUSER', 'postgres');
+            $this->password = EnvLoader::get('PGPASSWORD', '');
         }
     }
 
