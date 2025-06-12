@@ -264,16 +264,25 @@ $(document).ready(function() {
     function submitBooking() {
         if (!currentWalker) return;
 
+        const duration = parseInt($('#duration').val());
+        const hourlyRate = currentWalker.price;
+        const serviceFee = Math.round(hourlyRate * (duration / 60) * 100);
+        const appFee = Math.round(serviceFee * 0.15);
+        const total = serviceFee + appFee;
+
         const bookingData = {
             walkerId: currentWalker.id,
             dogName: $('#dogName').val(),
             dogSize: $('#dogSize').val(),
             date: $('#bookingDate').val(),
             time: $('#bookingTime').val(),
-            duration: parseInt($('#duration').val()),
+            duration: duration,
             phone: $('#phone').val(),
             email: $('#bookingEmail').val(),
             instructions: $('#instructions').val(),
+            serviceFee: serviceFee,
+            appFee: appFee,
+            total: total,
             status: 'pending'
         };
 
@@ -284,27 +293,58 @@ $(document).ready(function() {
             return;
         }
 
-        // Add to bookings array (in a real app, this would be sent to server)
-        const newBooking = {
-            id: bookings.length + 1,
-            ...bookingData
-        };
-        bookings.push(newBooking);
+        // Disable submit button
+        $('#confirmBooking').prop('disabled', true).text('Booking...');
 
-        closeBookingModal();
-        showToast('Booking request submitted successfully!', 'success');
-        
-        // Refresh bookings if on bookings page
-        if ($('#bookingsPage').hasClass('active')) {
-            loadBookings();
-        }
+        $.ajax({
+            url: API_BASE + 'bookings.php',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(bookingData),
+            success: function(response) {
+                closeBookingModal();
+                showToast('Booking request submitted successfully!', 'success');
+                loadBookings(); // Refresh bookings
+            },
+            error: function() {
+                showToast('Failed to submit booking. Please try again.', 'error');
+            },
+            complete: function() {
+                $('#confirmBooking').prop('disabled', false).text('Book Now');
+            }
+        });
     }
 
     function loadBookings() {
         const container = $('#bookingsList');
+        container.html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading bookings...</div>');
+
+        $.ajax({
+            url: API_BASE + 'bookings.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                bookings = data;
+                displayBookings(bookings, container);
+            },
+            error: function() {
+                container.html(`
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Failed to load bookings</p>
+                        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" onclick="loadBookings()">
+                            Try Again
+                        </button>
+                    </div>
+                `);
+            }
+        });
+    }
+
+    function displayBookings(bookingsToShow, container) {
         container.empty();
 
-        if (bookings.length === 0) {
+        if (bookingsToShow.length === 0) {
             container.html(`
                 <div class="text-center py-8 text-gray-500">
                     <i class="fas fa-calendar text-4xl mb-4"></i>
@@ -317,14 +357,13 @@ $(document).ready(function() {
             return;
         }
 
-        bookings.forEach(booking => {
-            const walker = walkers.find(w => w.id === booking.walkerId);
-            const bookingCard = createBookingCard(booking, walker);
+        bookingsToShow.forEach(booking => {
+            const bookingCard = createBookingCard(booking);
             container.append(bookingCard);
         });
     }
 
-    function createBookingCard(booking, walker) {
+    function createBookingCard(booking) {
         const statusColors = {
             pending: 'bg-yellow-100 text-yellow-800',
             confirmed: 'bg-green-100 text-green-800',
@@ -332,13 +371,16 @@ $(document).ready(function() {
             cancelled: 'bg-red-100 text-red-800'
         };
 
+        const walkerImage = booking.walkerImage || 'https://via.placeholder.com/40x40?text=W';
+        const walkerName = booking.walkerName || 'Unknown Walker';
+
         return `
             <div class="bg-gray-50 rounded-lg p-4 mb-4">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center space-x-3">
-                        ${walker ? `<img src="${walker.image}" alt="${walker.name}" class="w-10 h-10 rounded-full object-cover">` : ''}
+                        <img src="${walkerImage}" alt="${walkerName}" class="w-10 h-10 rounded-full object-cover">
                         <div>
-                            <h4 class="font-semibold">${walker ? walker.name : 'Unknown Walker'}</h4>
+                            <h4 class="font-semibold">${walkerName}</h4>
                             <p class="text-sm text-gray-600">Walking ${booking.dogName} (${booking.dogSize})</p>
                         </div>
                     </div>
@@ -363,6 +405,16 @@ $(document).ready(function() {
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-envelope text-gray-500"></i>
                         <span>${booking.email}</span>
+                    </div>
+                </div>
+                
+                <div class="mt-3 flex items-center justify-between">
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-dollar-sign text-gray-500"></i>
+                        Total: $${(booking.total / 100).toFixed(2)}
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        ${new Date(booking.createdAt).toLocaleDateString()}
                     </div>
                 </div>
                 
@@ -396,23 +448,25 @@ $(document).ready(function() {
 
     function loadProfileBookings() {
         const container = $('#profileBookingsList');
-        container.empty();
+        container.html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading your bookings...</div>');
 
-        if (bookings.length === 0) {
-            container.html(`
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-heart text-4xl mb-4"></i>
-                    <p>No bookings yet</p>
-                    <p class="text-sm">Book your first dog walker to get started!</p>
-                </div>
-            `);
-            return;
-        }
+        const userEmail = $('#email').val() || 'john.doe@example.com'; // Default for demo
 
-        bookings.forEach(booking => {
-            const walker = walkers.find(w => w.id === booking.walkerId);
-            const bookingCard = createBookingCard(booking, walker);
-            container.append(bookingCard);
+        $.ajax({
+            url: API_BASE + 'bookings.php?user_email=' + encodeURIComponent(userEmail),
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                displayBookings(data, container);
+            },
+            error: function() {
+                container.html(`
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Failed to load your bookings</p>
+                    </div>
+                `);
+            }
         });
     }
 
