@@ -1,63 +1,96 @@
-# PawWalk - jQuery Dog Walker Booking App
+# PawWalk - Dog Walker Booking Platform
 
-A mobile-friendly dog walker booking platform built with HTML, CSS, jQuery, and PHP.
+A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQuery, and PHP with PostgreSQL database integration.
 
 ## Features
 
 - Browse available dog walkers with ratings and reviews
 - Search walkers by location and service type
-- Book walking sessions with real-time pricing
+- Book walking sessions with real-time pricing calculations
 - Manage bookings and view booking history
 - User profile management with personal information
 - Responsive design optimized for mobile devices
-- RESTful PHP API backend with MySQL database
+- RESTful PHP API backend with PostgreSQL database
+- Complete database schema with sample data
+- User authentication and session management
 
-## Setup Instructions
+## Technology Stack
 
-### Prerequisites
+- **Frontend**: HTML5, CSS3 (Tailwind CSS), jQuery 3.6.0
+- **Backend**: PHP 7.4+, PostgreSQL 13+
+- **Database**: PostgreSQL with prepared statements and transactions
+- **Icons**: Font Awesome 6.0
+- **Images**: Unsplash API for walker photos
+- **Architecture**: RESTful API with MVC pattern
 
-- PHP 7.4 or higher
-- MySQL 5.7 or higher
+## Prerequisites
+
+- PHP 7.4 or higher with PDO PostgreSQL extension
+- PostgreSQL 13 or higher
 - Web server (Apache/Nginx) or PHP built-in server
 - Modern web browser
 
-### Installation
+## Quick Setup
 
-1. **Clone or download the project files**
+### Option 1: Using Existing PostgreSQL Database
+
+1. **Download and extract all project files**
+2. **Configure database connection** by setting environment variables:
    ```bash
-   git clone <repository-url>
-   cd dog-walker-jquery-app
+   export DATABASE_URL="postgresql://username:password@host:port/database_name"
+   # OR set individual variables:
+   export PGHOST="localhost"
+   export PGPORT="5432"
+   export PGDATABASE="pawwalk_db"
+   export PGUSER="your_username"
+   export PGPASSWORD="your_password"
    ```
-
-2. **Database Setup**
-   - Create a MySQL database named `dog_walker_app`
-   - Import the database schema:
+3. **Initialize the database**:
    ```bash
-   mysql -u root -p dog_walker_app < database/schema.sql
+   psql -h localhost -U your_username -d your_database -f database/schema.sql
    ```
-
-3. **Configure Database Connection**
-   - Edit `config/database.php`
-   - Update the database credentials:
-   ```php
-   private $host = 'localhost';
-   private $db_name = 'dog_walker_app';
-   private $username = 'your_username';
-   private $password = 'your_password';
+4. **Start the server**:
+   ```bash
+   php -S localhost:8000 server.php
    ```
+5. **Open browser**: Navigate to `http://localhost:8000`
 
-4. **Start the Development Server**
+### Option 2: Fresh PostgreSQL Installation
+
+1. **Install PostgreSQL**:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt update && sudo apt install postgresql postgresql-contrib php-pgsql
    
-   Using PHP built-in server:
-   ```bash
-   php -S localhost:8000
-   ```
+   # macOS with Homebrew
+   brew install postgresql php
    
-   Or configure your web server to serve the project directory.
+   # Windows: Download from https://www.postgresql.org/download/
+   ```
 
-5. **Access the Application**
-   - Open your browser and navigate to `http://localhost:8000`
-   - The app will load with sample data already populated
+2. **Create database and user**:
+   ```bash
+   sudo -u postgres psql
+   CREATE DATABASE pawwalk_db;
+   CREATE USER pawwalk_user WITH PASSWORD 'secure_password';
+   GRANT ALL PRIVILEGES ON DATABASE pawwalk_db TO pawwalk_user;
+   \q
+   ```
+
+3. **Set environment variables**:
+   ```bash
+   export DATABASE_URL="postgresql://pawwalk_user:secure_password@localhost:5432/pawwalk_db"
+   ```
+
+4. **Initialize database with sample data**:
+   ```bash
+   psql -h localhost -U pawwalk_user -d pawwalk_db -f database/schema.sql
+   ```
+
+5. **Start the application**:
+   ```bash
+   php -S localhost:8000 server.php
+   ```
 
 ## Project Structure
 
