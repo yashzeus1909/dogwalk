@@ -453,7 +453,7 @@ $(document).ready(function() {
         const userEmail = $('#email').val() || 'john.doe@example.com'; // Default for demo
 
         $.ajax({
-            url: API_BASE + 'bookings.php?user_email=' + encodeURIComponent(userEmail),
+            url: API_BASE + 'profile-bookings.php?email=' + encodeURIComponent(userEmail),
             method: 'GET',
             dataType: 'json',
             success: function(data) {
