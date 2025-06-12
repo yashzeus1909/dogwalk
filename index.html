@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawWalk - Dog Walking Service</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .walker-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .walker-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+        }
+        .loading {
+            display: none;
+        }
+        .loading.show {
+            display: block;
+        }
+        .modal {
+            display: none;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .bottom-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .nav-item.active {
+            color: #2563eb !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-blue-600">🐾 PawWalk</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="notificationBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="far fa-bell text-xl"></i>
+                    </button>
+                    <button id="profileBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="far fa-user text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Home Page -->
+    <div id="homePage" class="page active">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
+            <!-- Search Section -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Find a Dog Walker</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <div class="relative">
+                            <input type="text" id="searchLocation" placeholder="Enter your location" 
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <i class="fas fa-map-marker-alt absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Service Type</label>
+                        <select id="serviceType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Services</option>
+                            <option value="walking">Dog Walking</option>
+                            <option value="sitting">Pet Sitting</option>
+                            <option value="boarding">Pet Boarding</option>
+                            <option value="daycare">Doggy Daycare</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="searchBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">
+                            <i class="fas fa-search mr-2"></i>Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-gray-600">Finding available walkers...</p>
+            </div>
+
+            <!-- Walkers Grid -->
+            <div id="walkersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Walker cards will be populated by JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-12 hidden">
+                <i class="fas fa-dog text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No walkers found</h3>
+                <p class="text-gray-500">Try adjusting your search criteria</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bookings Page -->
+    <div id="bookingsPage" class="page">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold mb-4">My Bookings</h2>
+                <div id="bookingsList">
+                    <!-- Bookings will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Messages Page -->
+    <div id="messagesPage" class="page">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold mb-4">Messages</h2>
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-envelope text-4xl mb-4"></i>
+                    <p>No messages yet</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profilePage" class="page">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
+            <!-- Profile Header -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600 text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-semibold" id="profileName">John Doe</h2>
+                            <p class="text-gray-600" id="profileEmail">john.doe@example.com</p>
+                        </div>
+                    </div>
+                    <button id="editProfileBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-edit mr-2"></i>Edit Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile Tabs -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button class="profile-tab py-4 px-1 border-b-2 border-blue-600 text-blue-600 font-medium" data-tab="info">
+                            Personal Info
+                        </button>
+                        <button class="profile-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="bookings">
+                            My Bookings
+                        </button>
+                        <button class="profile-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="settings">
+                            Settings
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Profile Info Tab -->
+                <div id="profileInfoTab" class="profile-tab-content p-6">
+                    <form id="profileForm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" id="firstName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" id="lastName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                <input type="tel" id="phoneNumber" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                <textarea id="address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Profile Bookings Tab -->
+                <div id="profileBookingsTab" class="profile-tab-content p-6 hidden">
+                    <div id="profileBookingsList">
+                        <!-- User's bookings will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Profile Settings Tab -->
+                <div id="profileSettingsTab" class="profile-tab-content p-6 hidden">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-medium">Email Notifications</h4>
+                                <p class="text-sm text-gray-600">Receive booking updates via email</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-medium">SMS Notifications</h4>
+                                <p class="text-sm text-gray-600">Receive booking updates via SMS</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg max-w-md w-full max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Book a Walk</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="bookingForm">
+                    <div class="space-y-4">
+                        <!-- Walker Info -->
+                        <div id="walkerInfo" class="bg-gray-50 p-4 rounded-lg">
+                            <!-- Walker details will be populated -->
+                        </div>
+
+                        <!-- Dog Information -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dog's Name</label>
+                            <input type="text" id="dogName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dog Size</label>
+                            <select id="dogSize" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select size</option>
+                                <option value="Small">Small (0-25 lbs)</option>
+                                <option value="Medium">Medium (26-60 lbs)</option>
+                                <option value="Large">Large (61-100 lbs)</option>
+                                <option value="Extra Large">Extra Large (100+ lbs)</option>
+                            </select>
+                        </div>
+
+                        <!-- Booking Details -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                            <input type="date" id="bookingDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                            <select id="bookingTime" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select time</option>
+                                <option value="6:00 AM">6:00 AM</option>
+                                <option value="7:00 AM">7:00 AM</option>
+                                <option value="8:00 AM">8:00 AM</option>
+                                <option value="9:00 AM">9:00 AM</option>
+                                <option value="10:00 AM">10:00 AM</option>
+                                <option value="11:00 AM">11:00 AM</option>
+                                <option value="12:00 PM">12:00 PM</option>
+                                <option value="1:00 PM">1:00 PM</option>
+                                <option value="2:00 PM">2:00 PM</option>
+                                <option value="3:00 PM">3:00 PM</option>
+                                <option value="4:00 PM">4:00 PM</option>
+                                <option value="5:00 PM">5:00 PM</option>
+                                <option value="6:00 PM">6:00 PM</option>
+                                <option value="7:00 PM">7:00 PM</option>
+                                <option value="8:00 PM">8:00 PM</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                            <select id="duration" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="30">30 minutes</option>
+                                <option value="60" selected>1 hour</option>
+                                <option value="90">1.5 hours</option>
+                                <option value="120">2 hours</option>
+                            </select>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="bookingEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Special Instructions -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Special Instructions (Optional)</label>
+                            <textarea id="instructions" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Any special care instructions for your dog..."></textarea>
+                        </div>
+
+                        <!-- Pricing Summary -->
+                        <div id="pricingSummary" class="bg-blue-50 p-4 rounded-lg">
+                            <!-- Pricing details will be populated -->
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-4 mt-6">
+                        <button type="button" id="cancelBooking" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" id="confirmBooking" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Book Now
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40">
+        <div class="flex items-center justify-around max-w-md mx-auto">
+            <button class="nav-item flex flex-col items-center space-y-1 p-2 text-blue-600 active" data-page="home">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs font-medium">Home</span>
+            </button>
+            <button class="nav-item flex flex-col items-center space-y-1 p-2 text-gray-500 hover:text-blue-600" data-page="bookings">
+                <i class="fas fa-calendar text-xl"></i>
+                <span class="text-xs font-medium">Bookings</span>
+            </button>
+            <button class="nav-item flex flex-col items-center space-y-1 p-2 text-gray-500 hover:text-blue-600" data-page="messages">
+                <i class="fas fa-comment text-xl"></i>
+                <span class="text-xs font-medium">Messages</span>
+            </button>
+            <button class="nav-item flex flex-col items-center space-y-1 p-2 text-gray-500 hover:text-blue-600" data-page="profile">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs font-medium">Profile</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
