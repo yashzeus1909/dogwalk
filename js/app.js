@@ -1,69 +1,9 @@
 $(document).ready(function() {
-    // Sample data - in a real app, this would come from a database
-    const walkers = [
-        {
-            id: 1,
-            name: "Sarah M.",
-            image: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face",
-            rating: 49,
-            reviewCount: 127,
-            distance: "0.5 miles away",
-            price: 25,
-            description: "Experienced dog walker with 5+ years caring for pets of all sizes. I love long walks and ensuring your furry friend gets the exercise they need!",
-            availability: "Available today",
-            badges: ["Background Check", "Insured", "5-Star Rated"],
-            backgroundCheck: true,
-            insured: true,
-            certified: true
-        },
-        {
-            id: 2,
-            name: "Mike T.",
-            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-            rating: 48,
-            reviewCount: 89,
-            distance: "0.8 miles away",
-            price: 22,
-            description: "Professional pet care specialist who treats every dog like family. Available for walks, feeding, and basic training.",
-            availability: "Available tomorrow",
-            badges: ["Certified", "Experienced"],
-            backgroundCheck: true,
-            insured: false,
-            certified: true
-        },
-        {
-            id: 3,
-            name: "Emma K.",
-            image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-            rating: 50,
-            reviewCount: 203,
-            distance: "1.2 miles away",
-            price: 30,
-            description: "Veterinary student with a passion for animal care. Specializing in senior dogs and those with special needs.",
-            availability: "Available this week",
-            badges: ["Vet Student", "Special Needs", "Top Rated"],
-            backgroundCheck: true,
-            insured: true,
-            certified: true
-        }
-    ];
-
-    const bookings = [
-        {
-            id: 1,
-            walkerId: 1,
-            dogName: "Rocky",
-            dogSize: "Medium",
-            date: "2024-01-15",
-            time: "2:00 PM",
-            duration: 60,
-            phone: "555-0123",
-            email: "john@example.com",
-            status: "confirmed",
-            instructions: "Rocky loves to play fetch in the park!"
-        }
-    ];
-
+    // API Configuration
+    const API_BASE = 'api/';
+    
+    let walkers = [];
+    let bookings = [];
     let currentWalker = null;
 
     // Initialize the app
@@ -146,13 +86,40 @@ $(document).ready(function() {
     }
 
     function loadWalkers() {
+        $('#loadingState').addClass('show');
+        
+        $.ajax({
+            url: API_BASE + 'walkers.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                walkers = data;
+                displayWalkers(walkers);
+                $('#loadingState').removeClass('show');
+            },
+            error: function() {
+                $('#loadingState').removeClass('show');
+                showToast('Failed to load walkers', 'error');
+            }
+        });
+    }
+
+    function displayWalkers(walkersToShow) {
         const grid = $('#walkersGrid');
         grid.empty();
 
-        walkers.forEach(walker => {
+        if (walkersToShow.length === 0) {
+            $('#emptyState').removeClass('hidden');
+            return;
+        }
+
+        $('#emptyState').addClass('hidden');
+        walkersToShow.forEach(walker => {
             const walkerCard = createWalkerCard(walker);
             grid.append(walkerCard);
         });
+        
+        bindWalkerEvents();
     }
 
     function createWalkerCard(walker) {
@@ -208,36 +175,25 @@ $(document).ready(function() {
     function searchWalkers(location, serviceType) {
         $('#loadingState').addClass('show');
         
-        // Simulate API call
-        setTimeout(() => {
-            $('#loadingState').removeClass('show');
-            
-            // In a real app, filter walkers based on search criteria
-            let filteredWalkers = walkers;
-            
-            if (location) {
-                // Filter by location (simplified)
-                filteredWalkers = walkers.filter(walker => 
-                    walker.distance.toLowerCase().includes(location.toLowerCase())
-                );
+        const params = new URLSearchParams();
+        params.append('search', '1');
+        if (location) params.append('location', location);
+        if (serviceType) params.append('service_type', serviceType);
+        
+        $.ajax({
+            url: API_BASE + 'walkers.php?' + params.toString(),
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                walkers = data;
+                displayWalkers(walkers);
+                $('#loadingState').removeClass('show');
+            },
+            error: function() {
+                $('#loadingState').removeClass('show');
+                showToast('Search failed. Please try again.', 'error');
             }
-            
-            const grid = $('#walkersGrid');
-            grid.empty();
-            
-            if (filteredWalkers.length === 0) {
-                $('#emptyState').removeClass('hidden');
-            } else {
-                $('#emptyState').addClass('hidden');
-                filteredWalkers.forEach(walker => {
-                    const walkerCard = createWalkerCard(walker);
-                    grid.append(walkerCard);
-                });
-            }
-            
-            // Re-bind click events
-            bindWalkerEvents();
-        }, 1000);
+        });
     }
 
     function bindWalkerEvents() {
