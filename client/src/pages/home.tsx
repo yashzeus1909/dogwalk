@@ -28,7 +28,49 @@ export default function Home() {
     setSelectedWalker(null);
   };
 
-  const filteredWalkers = walkers; // Could add filtering logic here
+  const filteredWalkers = walkers.filter((walker) => {
+    // Filter by service type
+    const serviceMapping = {
+      "Walking": "Dog Walking",
+      "Pet Sitting": "Pet Sitting", 
+      "Overnight": "Overnight Care",
+      "Grooming": "Grooming"
+    };
+    
+    const searchService = serviceMapping[selectedService as keyof typeof serviceMapping] || selectedService;
+    
+    // Check if walker offers the selected service
+    let hasService = false;
+    if (walker.badges && Array.isArray(walker.badges)) {
+      // Check badges for service keywords
+      hasService = walker.badges.some(badge => 
+        badge.toLowerCase().includes(selectedService.toLowerCase())
+      );
+    }
+    
+    // Also check description for service keywords
+    if (!hasService && walker.description) {
+      const descLower = walker.description.toLowerCase();
+      const serviceLower = selectedService.toLowerCase();
+      hasService = descLower.includes(serviceLower) || 
+                  descLower.includes(searchService.toLowerCase()) ||
+                  (serviceLower === "walking" && descLower.includes("walk")) ||
+                  (serviceLower === "pet sitting" && descLower.includes("sit")) ||
+                  (serviceLower === "grooming" && descLower.includes("groom"));
+    }
+    
+    // Default to showing all walkers for "Walking" service
+    if (!hasService && selectedService === "Walking") {
+      hasService = true;
+    }
+    
+    // Filter by location if provided
+    const hasLocation = !searchLocation || 
+                       walker.distance?.toLowerCase().includes(searchLocation.toLowerCase()) ||
+                       walker.availability?.toLowerCase().includes(searchLocation.toLowerCase());
+    
+    return hasService && hasLocation;
+  });
 
   return (
     <div className="min-h-screen bg-neutral-50">

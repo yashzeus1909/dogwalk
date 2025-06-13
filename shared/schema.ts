@@ -13,6 +13,7 @@ export const walkers = mysqlTable("walkers", {
   description: text("description"),
   availability: varchar("availability", { length: 100 }),
   badges: json("badges"),
+  services: json("services"), // Array of services offered
   backgroundCheck: boolean("background_check").notNull().default(false),
   insured: boolean("insured").notNull().default(false),
   certified: boolean("certified").notNull().default(false),
