@@ -1,10 +1,33 @@
+// Global variables
+const API_BASE = 'api/';
+let walkers = [];
+let bookings = [];
+let currentWalker = null;
+
+// Global functions
+function deleteWalker(walkerId) {
+    $.ajax({
+        url: 'api/delete_walker.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ id: walkerId }),
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showToast(`Walker ${response.walker_name} deleted successfully!`, 'success');
+                // Reload walkers list
+                loadWalkers();
+            } else {
+                showToast('Error: ' + response.message, 'error');
+            }
+        },
+        error: function() {
+            showToast('Failed to delete walker. Please try again.', 'error');
+        }
+    });
+}
+
 $(document).ready(function() {
-    // API Configuration
-    const API_BASE = 'api/';
-    
-    let walkers = [];
-    let bookings = [];
-    let currentWalker = null;
 
     // Initialize the app
     loadWalkers();
@@ -228,27 +251,7 @@ $(document).ready(function() {
         });
     }
 
-    function deleteWalker(walkerId) {
-        $.ajax({
-            url: 'api/delete_walker.php',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ id: walkerId }),
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    showToast(`Walker ${response.walker_name} deleted successfully!`, 'success');
-                    // Reload walkers list
-                    loadWalkers();
-                } else {
-                    showToast('Error: ' + response.message, 'error');
-                }
-            },
-            error: function() {
-                showToast('Failed to delete walker. Please try again.', 'error');
-            }
-        });
-    }
+
 
     function showBookingModal() {
         if (!currentWalker) return;
