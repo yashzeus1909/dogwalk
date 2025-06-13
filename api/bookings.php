@@ -63,6 +63,7 @@ switch($method) {
 
         if(!empty($data->walkerId) && !empty($data->dogName) && !empty($data->phone)) {
             $booking->walker_id = $data->walkerId;
+            $booking->user_id = isset($data->userId) ? $data->userId : 1; // Default to first user
             $booking->dog_name = $data->dogName;
             $booking->dog_size = $data->dogSize;
             $booking->booking_date = $data->date;

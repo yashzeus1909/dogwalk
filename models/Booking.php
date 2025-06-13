@@ -102,9 +102,6 @@ class Booking {
 
     // Create booking
     function create() {
-        // First, try to find or create user
-        $user_id = $this->findOrCreateUser();
-        
         $query = "INSERT INTO " . $this->table_name . " 
                 SET walker_id=:walker_id, user_id=:user_id, dog_name=:dog_name, 
                     dog_size=:dog_size, booking_date=:booking_date, booking_time=:booking_time,
@@ -122,7 +119,7 @@ class Booking {
 
         // Bind data
         $stmt->bindParam(":walker_id", $this->walker_id);
-        $stmt->bindParam(":user_id", $user_id);
+        $stmt->bindParam(":user_id", $this->user_id);
         $stmt->bindParam(":dog_name", $this->dog_name);
         $stmt->bindParam(":dog_size", $this->dog_size);
         $stmt->bindParam(":booking_date", $this->booking_date);
