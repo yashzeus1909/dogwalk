@@ -1,5 +1,6 @@
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import logoImage from "@assets/gold bone _1749526479486.jpeg";
 
 export default function Header() {
@@ -17,13 +18,18 @@ export default function Header() {
             </div>
             <h1 className="text-xl font-bold text-neutral-900">PawWalk</h1>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-neutral-500 hover:text-neutral-900"
-          >
-            <Menu className="w-6 h-6" />
-          </Button>
+          <div className="flex items-center gap-3">
+            <Link href="/admin" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+              Add Walker
+            </Link>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="text-neutral-500 hover:text-neutral-900"
+            >
+              <Menu className="w-6 h-6" />
+            </Button>
+          </div>
         </div>
       </div>
     </header>
