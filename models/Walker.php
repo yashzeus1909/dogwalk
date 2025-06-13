@@ -5,6 +5,7 @@ class Walker {
 
     public $id;
     public $name;
+    public $email;
     public $image;
     public $rating;
     public $review_count;
@@ -79,6 +80,7 @@ class Walker {
 
         if ($row) {
             $this->name = $row['name'];
+            $this->email = $row['email'];
             $this->image = $row['image'];
             $this->rating = $row['rating'];
             $this->review_count = $row['review_count'];
@@ -99,7 +101,7 @@ class Walker {
     // Create walker
     function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                SET name=:name, image=:image, rating=:rating, review_count=:review_count,
+                SET name=:name, email=:email, image=:image, rating=:rating, review_count=:review_count,
                     distance=:distance, price=:price, description=:description,
                     availability=:availability, badges=:badges, background_check=:background_check,
                     insured=:insured, certified=:certified";
@@ -108,6 +110,7 @@ class Walker {
 
         // Sanitize
         $this->name = htmlspecialchars(strip_tags($this->name));
+        $this->email = htmlspecialchars(strip_tags($this->email));
         $this->image = htmlspecialchars(strip_tags($this->image));
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->availability = htmlspecialchars(strip_tags($this->availability));
@@ -117,6 +120,7 @@ class Walker {
         
         // Bind data
         $stmt->bindParam(":name", $this->name);
+        $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":image", $this->image);
         $stmt->bindParam(":rating", $this->rating);
         $stmt->bindParam(":review_count", $this->review_count);
@@ -138,7 +142,7 @@ class Walker {
     // Update walker
     function update() {
         $query = "UPDATE " . $this->table_name . " 
-                SET name=:name, image=:image, rating=:rating, review_count=:review_count,
+                SET name=:name, email=:email, image=:image, rating=:rating, review_count=:review_count,
                     distance=:distance, price=:price, description=:description,
                     availability=:availability, badges=:badges, background_check=:background_check,
                     insured=:insured, certified=:certified
@@ -148,6 +152,7 @@ class Walker {
 
         // Sanitize
         $this->name = htmlspecialchars(strip_tags($this->name));
+        $this->email = htmlspecialchars(strip_tags($this->email));
         $this->image = htmlspecialchars(strip_tags($this->image));
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->availability = htmlspecialchars(strip_tags($this->availability));
@@ -155,6 +160,7 @@ class Walker {
         // Bind data
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":name", $this->name);
+        $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":image", $this->image);
         $stmt->bindParam(":rating", $this->rating);
         $stmt->bindParam(":review_count", $this->review_count);

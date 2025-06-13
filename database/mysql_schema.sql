@@ -26,6 +26,7 @@ CREATE TABLE users (
 CREATE TABLE walkers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
     image VARCHAR(500),
     rating INT DEFAULT 0 CHECK (rating >= 0 AND rating <= 50),
     review_count INT DEFAULT 0,
@@ -78,12 +79,12 @@ INSERT INTO users (first_name, last_name, email, phone, address) VALUES
 ('Mike', 'Johnson', 'mike.johnson@example.com', '555-0789', '789 Pine Rd, Uptown');
 
 -- Insert sample walkers with JSON badges
-INSERT INTO walkers (name, image, rating, review_count, distance, price, description, availability, badges, background_check, insured, certified) VALUES
-('Sarah M.', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face', 49, 127, '0.8 miles away', 25, 'Experienced dog walker with 3+ years of professional pet care. I love spending time with dogs of all sizes and ensuring they get the exercise and attention they deserve. Certified in pet first aid and CPR.', 'Mon-Fri: 7AM-7PM, Weekends: 8AM-6PM', '["Background Checked", "Insured", "5-Star Rated"]', true, true, true),
-('Mike T.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face', 48, 89, '1.2 miles away', 22, 'Reliable and trustworthy dog walker who treats every pet like family. I offer flexible scheduling and always provide updates with photos during walks. Great with both energetic and calm dogs.', 'Mon-Sun: 6AM-8PM', '["Certified", "Experienced"]', true, false, true),
-('Emma K.', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face', 50, 203, '0.5 miles away', 30, 'Veterinary student with a passion for animal care. I provide specialized attention for dogs with special needs and senior pets. Currently pursuing certification in animal behavior.', 'Tue-Sat: 9AM-5PM', '["Vet Student", "Special Needs", "Top Rated"]', true, true, true),
-('Alex R.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face', 47, 156, '1.5 miles away', 28, 'Fitness enthusiast who loves long walks and runs with high-energy dogs. Perfect for active breeds that need extra exercise. I also offer basic training reinforcement during walks.', 'Mon-Fri: 5AM-9AM, 5PM-8PM', '["Fitness Focused", "Certified", "High Energy"]', true, true, false),
-('Lisa P.', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face', 50, 312, '0.3 miles away', 35, 'Professional dog trainer with 8+ years of experience. I specialize in behavioral training and can work with reactive or anxious dogs. Fully insured and bonded with excellent references.', 'Mon-Fri: 8AM-6PM', '["Dog Trainer", "Senior Care", "Behavioral Expert"]', true, true, true);
+INSERT INTO walkers (name, email, image, rating, review_count, distance, price, description, availability, badges, background_check, insured, certified) VALUES
+('Sarah M.', 'sarah.m@dogwalkers.com', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face', 49, 127, '0.8 miles away', 25, 'Experienced dog walker with 3+ years of professional pet care. I love spending time with dogs of all sizes and ensuring they get the exercise and attention they deserve. Certified in pet first aid and CPR.', 'Mon-Fri: 7AM-7PM, Weekends: 8AM-6PM', '["Background Checked", "Insured", "5-Star Rated"]', true, true, true),
+('Mike T.', 'mike.t@petcare.com', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face', 48, 89, '1.2 miles away', 22, 'Reliable and trustworthy dog walker who treats every pet like family. I offer flexible scheduling and always provide updates with photos during walks. Great with both energetic and calm dogs.', 'Mon-Sun: 6AM-8PM', '["Certified", "Experienced"]', true, false, true),
+('Emma K.', 'emma.k@vetwalker.com', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face', 50, 203, '0.5 miles away', 30, 'Veterinary student with a passion for animal care. I provide specialized attention for dogs with special needs and senior pets. Currently pursuing certification in animal behavior.', 'Tue-Sat: 9AM-5PM', '["Vet Student", "Special Needs", "Top Rated"]', true, true, true),
+('Alex R.', 'alex.r@activewalks.com', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face', 47, 156, '1.5 miles away', 28, 'Fitness enthusiast who loves long walks and runs with high-energy dogs. Perfect for active breeds that need extra exercise. I also offer basic training reinforcement during walks.', 'Mon-Fri: 5AM-9AM, 5PM-8PM', '["Fitness Focused", "Certified", "High Energy"]', true, true, false),
+('Lisa P.', 'lisa.p@dogtrainer.com', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face', 50, 312, '0.3 miles away', 35, 'Professional dog trainer with 8+ years of experience. I specialize in behavioral training and can work with reactive or anxious dogs. Fully insured and bonded with excellent references.', 'Mon-Fri: 8AM-6PM', '["Dog Trainer", "Senior Care", "Behavioral Expert"]', true, true, true);
 
 -- Insert sample bookings
 INSERT INTO bookings (walker_id, user_id, dog_name, dog_size, booking_date, booking_time, duration, phone, email, address, special_notes, total_price, status) VALUES
