@@ -12,11 +12,9 @@ class Booking {
     public $booking_time;
     public $duration;
     public $phone;
-    public $email;
-    public $instructions;
-    public $service_fee;
-    public $app_fee;
-    public $total;
+    public $address;
+    public $special_notes;
+    public $total_price;
     public $status;
 
     public function __construct($db) {
@@ -44,7 +42,7 @@ class Booking {
                   FROM " . $this->table_name . " b
                   LEFT JOIN walkers w ON b.walker_id = w.id
                   LEFT JOIN users u ON b.user_id = u.id
-                  WHERE b.email = :email
+                  WHERE u.email = :email
                   ORDER BY b.created_at DESC";
         
         $stmt = $this->conn->prepare($query);
@@ -93,11 +91,9 @@ class Booking {
             $this->booking_time = $row['booking_time'];
             $this->duration = $row['duration'];
             $this->phone = $row['phone'];
-            $this->email = $row['email'];
-            $this->instructions = $row['instructions'];
-            $this->service_fee = $row['service_fee'];
-            $this->app_fee = $row['app_fee'];
-            $this->total = $row['total'];
+            $this->address = $row['address'];
+            $this->special_notes = $row['special_notes'];
+            $this->total_price = $row['total_price'];
             $this->status = $row['status'];
             return true;
         }
@@ -112,8 +108,8 @@ class Booking {
         $query = "INSERT INTO " . $this->table_name . " 
                 SET walker_id=:walker_id, user_id=:user_id, dog_name=:dog_name, 
                     dog_size=:dog_size, booking_date=:booking_date, booking_time=:booking_time,
-                    duration=:duration, phone=:phone, email=:email, instructions=:instructions,
-                    service_fee=:service_fee, app_fee=:app_fee, total=:total, status=:status";
+                    duration=:duration, phone=:phone, address=:address, special_notes=:special_notes,
+                    total_price=:total_price, status=:status";
 
         $stmt = $this->conn->prepare($query);
 
@@ -121,8 +117,8 @@ class Booking {
         $this->dog_name = htmlspecialchars(strip_tags($this->dog_name));
         $this->dog_size = htmlspecialchars(strip_tags($this->dog_size));
         $this->phone = htmlspecialchars(strip_tags($this->phone));
-        $this->email = htmlspecialchars(strip_tags($this->email));
-        $this->instructions = htmlspecialchars(strip_tags($this->instructions));
+        $this->address = htmlspecialchars(strip_tags($this->address));
+        $this->special_notes = htmlspecialchars(strip_tags($this->special_notes));
 
         // Bind data
         $stmt->bindParam(":walker_id", $this->walker_id);
@@ -133,11 +129,9 @@ class Booking {
         $stmt->bindParam(":booking_time", $this->booking_time);
         $stmt->bindParam(":duration", $this->duration);
         $stmt->bindParam(":phone", $this->phone);
-        $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":instructions", $this->instructions);
-        $stmt->bindParam(":service_fee", $this->service_fee);
-        $stmt->bindParam(":app_fee", $this->app_fee);
-        $stmt->bindParam(":total", $this->total);
+        $stmt->bindParam(":address", $this->address);
+        $stmt->bindParam(":special_notes", $this->special_notes);
+        $stmt->bindParam(":total_price", $this->total_price);
         $stmt->bindParam(":status", $this->status);
 
         if ($stmt->execute()) {

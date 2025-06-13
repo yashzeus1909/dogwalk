@@ -42,11 +42,9 @@ switch($method) {
                 "time" => $booking_time,
                 "duration" => (int)$duration,
                 "phone" => $phone,
-                "email" => $email,
-                "instructions" => $instructions,
-                "serviceFee" => (int)$service_fee,
-                "appFee" => (int)$app_fee,
-                "total" => (int)$total,
+                "address" => isset($address) ? $address : '',
+                "instructions" => isset($special_notes) ? $special_notes : '',
+                "total" => (float)$total_price,
                 "status" => $status,
                 "createdAt" => $created_at,
                 "walkerName" => isset($walker_name) ? $walker_name : null,
@@ -63,7 +61,7 @@ switch($method) {
     case 'POST':
         $data = json_decode(file_get_contents("php://input"));
 
-        if(!empty($data->walkerId) && !empty($data->dogName) && !empty($data->email)) {
+        if(!empty($data->walkerId) && !empty($data->dogName) && !empty($data->phone)) {
             $booking->walker_id = $data->walkerId;
             $booking->dog_name = $data->dogName;
             $booking->dog_size = $data->dogSize;
@@ -71,11 +69,9 @@ switch($method) {
             $booking->booking_time = $data->time;
             $booking->duration = $data->duration;
             $booking->phone = $data->phone;
-            $booking->email = $data->email;
-            $booking->instructions = $data->instructions ?? '';
-            $booking->service_fee = $data->serviceFee;
-            $booking->app_fee = $data->appFee;
-            $booking->total = $data->total;
+            $booking->address = $data->address ?? '';
+            $booking->special_notes = $data->instructions ?? '';
+            $booking->total_price = $data->total;
             $booking->status = isset($data->status) ? $data->status : 'pending';
 
             if($booking->create()) {
