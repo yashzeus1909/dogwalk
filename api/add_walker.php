@@ -25,12 +25,13 @@ try {
     $walker = new Walker($db);
     
     // Validate required fields
-    if (empty($_POST['name']) || empty($_POST['price'])) {
-        throw new Exception('Name and price are required fields');
+    if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['price'])) {
+        throw new Exception('Name, email, and price are required fields');
     }
     
     // Set walker properties
     $walker->name = trim($_POST['name']);
+    $walker->email = trim($_POST['email']);
     $walker->price = (int)$_POST['price'];
     $walker->image = !empty($_POST['image']) ? trim($_POST['image']) : null;
     $walker->distance = !empty($_POST['distance']) ? trim($_POST['distance']) : null;
@@ -63,6 +64,11 @@ try {
     // Validate rating
     if ($rating < 0 || $rating > 5) {
         throw new Exception('Rating must be between 0 and 5');
+    }
+    
+    // Validate email format
+    if (!filter_var($walker->email, FILTER_VALIDATE_EMAIL)) {
+        throw new Exception('Invalid email format');
     }
     
     // Validate image URL if provided
