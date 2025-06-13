@@ -29,6 +29,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create a new walker
+  app.post("/api/walkers", async (req, res) => {
+    try {
+      const walkerData = req.body;
+      
+      // Validate required fields
+      if (!walkerData.name || !walkerData.price) {
+        return res.status(400).json({ message: "Name and price are required" });
+      }
+
+      const walker = await demoStorage.createWalker(walkerData);
+      res.status(201).json(walker);
+    } catch (error) {
+      console.error("Walker creation error:", error);
+      res.status(500).json({ message: "Failed to create walker" });
+    }
+  });
+
   // Create a booking
   app.post("/api/bookings", async (req, res) => {
     try {
