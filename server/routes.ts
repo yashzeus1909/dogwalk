@@ -1,17 +1,16 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertBookingSchema, updateUserProfileSchema } from "@shared/schema";
-import { sendBookingConfirmationEmail, sendBookingStatusUpdateEmail } from "./email";
+import { mysqlStorage } from "./mysql-storage";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all walkers
   app.get("/api/walkers", async (_req, res) => {
     try {
-      const walkers = await storage.getAllWalkers();
+      const walkers = await mysqlStorage.getAllWalkers();
       res.json(walkers);
     } catch (error) {
+      console.error("Walkers fetch error:", error);
       res.status(500).json({ message: "Failed to fetch walkers" });
     }
   });
@@ -33,27 +32,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a booking
   app.post("/api/bookings", async (req, res) => {
     try {
-      const bookingData = insertBookingSchema.parse(req.body);
-      const booking = await storage.createBooking(bookingData);
-      
-      // Get walker information for email
-      const walker = await storage.getWalker(booking.walkerId);
-      
-      if (walker) {
-        // Send booking confirmation email (don't wait for it to complete)
-        sendBookingConfirmationEmail({ booking, walker }).catch(error => {
-          console.error("Failed to send booking confirmation email:", error);
-        });
-      }
-      
+      const booking = await mysqlStorage.createBooking(req.body);
       res.status(201).json(booking);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: "Invalid booking data", 
-          errors: error.errors 
-        });
-      }
+      console.error("Booking creation error:", error);
       res.status(500).json({ message: "Failed to create booking" });
     }
   });
@@ -61,9 +43,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all bookings
   app.get("/api/bookings", async (_req, res) => {
     try {
-      const bookings = await storage.getAllBookings();
+      const bookings = await mysqlStorage.getAllBookings();
       res.json(bookings);
     } catch (error) {
+      console.error("Bookings fetch error:", error);
       res.status(500).json({ message: "Failed to fetch bookings" });
     }
   });

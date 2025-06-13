@@ -33,7 +33,8 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const result = await db.insert(users).values(insertUser);
-    const [user] = await db.select().from(users).where(eq(users.id, Number(result.insertId)));
+    const insertId = (result as any).insertId;
+    const [user] = await db.select().from(users).where(eq(users.id, insertId));
     return user;
   }
 
@@ -78,19 +79,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
-    const [booking] = await db
-      .insert(bookings)
-      .values(insertBooking)
-      .returning();
+    const result = await db.insert(bookings).values(insertBooking);
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, Number(result.insertId)));
     return booking;
   }
 
   async updateBookingStatus(id: number, status: string): Promise<Booking | undefined> {
-    const [booking] = await db
-      .update(bookings)
-      .set({ status })
-      .where(eq(bookings.id, id))
-      .returning();
+    await db.update(bookings).set({ status }).where(eq(bookings.id, id));
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
     return booking || undefined;
   }
 }
