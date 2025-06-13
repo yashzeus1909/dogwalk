@@ -24,7 +24,13 @@ if (!$walker->readOne()) {
 
 // Convert rating from integer to decimal for display
 $display_rating = $walker->rating / 10;
-$badges_array = json_decode($walker->badges, true) ?: [];
+
+// Handle badges - check if it's already an array or needs JSON decoding
+if (is_array($walker->badges)) {
+    $badges_array = $walker->badges;
+} else {
+    $badges_array = json_decode($walker->badges, true) ?: [];
+}
 ?>
 
 <!DOCTYPE html>
