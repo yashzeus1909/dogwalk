@@ -32,7 +32,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a booking
   app.post("/api/bookings", async (req, res) => {
     try {
-      const booking = await mysqlStorage.createBooking(req.body);
+      const booking = await demoStorage.createBooking(req.body);
       res.status(201).json(booking);
     } catch (error) {
       console.error("Booking creation error:", error);
@@ -43,7 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all bookings
   app.get("/api/bookings", async (_req, res) => {
     try {
-      const bookings = await mysqlStorage.getAllBookings();
+      const bookings = await demoStorage.getAllBookings();
       res.json(bookings);
     } catch (error) {
       console.error("Bookings fetch error:", error);
@@ -55,7 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/bookings/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const booking = await storage.getBooking(id);
+      const booking = await demoStorage.getBooking(id);
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
       }
@@ -75,19 +75,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Valid status is required" });
       }
 
-      const booking = await storage.updateBookingStatus(id, status);
+      const booking = await demoStorage.updateBookingStatus(id, status);
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });
-      }
-
-      // Get walker information for email
-      const walker = await storage.getWalker(booking.walkerId);
-      
-      if (walker) {
-        // Send status update email (don't wait for it to complete)
-        sendBookingStatusUpdateEmail({ booking, walker }, status).catch(error => {
-          console.error("Failed to send status update email:", error);
-        });
       }
 
       res.json(booking);
@@ -100,13 +90,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/profile/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const user = await storage.getUser(id);
+      const user = await demoStorage.getUser(id);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      // Don't send password in response
-      const { password, ...userProfile } = user;
-      res.json(userProfile);
+      res.json(user);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch profile" });
     }
@@ -116,21 +104,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/profile/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const profileData = updateUserProfileSchema.parse(req.body);
-      const user = await storage.updateUserProfile(id, profileData);
+      const user = await demoStorage.updateUserProfile(id, req.body);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      // Don't send password in response
-      const { password, ...userProfile } = user;
-      res.json(userProfile);
+      res.json(user);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: "Invalid profile data", 
-          errors: error.errors 
-        });
-      }
       res.status(500).json({ message: "Failed to update profile" });
     }
   });
@@ -139,41 +118,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/profile/:id/bookings", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const bookings = await storage.getBookingsByUser(id);
+      const bookings = await demoStorage.getBookingsByUser(id);
       res.json(bookings);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch user bookings" });
-    }
-  });
-
-  // Test email endpoint (for development/testing)
-  app.post("/api/test-email", async (req, res) => {
-    try {
-      const { bookingId } = req.body;
-      
-      if (!bookingId) {
-        return res.status(400).json({ message: "Booking ID is required" });
-      }
-      
-      const booking = await storage.getBooking(bookingId);
-      if (!booking) {
-        return res.status(404).json({ message: "Booking not found" });
-      }
-      
-      const walker = await storage.getWalker(booking.walkerId);
-      if (!walker) {
-        return res.status(404).json({ message: "Walker not found" });
-      }
-      
-      const emailSent = await sendBookingConfirmationEmail({ booking, walker });
-      
-      res.json({ 
-        success: emailSent,
-        message: emailSent ? "Test email sent successfully" : "Failed to send test email"
-      });
-    } catch (error) {
-      console.error("Test email error:", error);
-      res.status(500).json({ message: "Failed to send test email" });
     }
   });
 
