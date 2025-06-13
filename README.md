@@ -25,10 +25,14 @@ A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQu
 
 ## Prerequisites
 
-- PHP 7.4 or higher with PDO PostgreSQL extension
-- PostgreSQL 13 or higher
-- Web server (Apache/Nginx) or PHP built-in server
+- PHP 8.0 or higher with PDO MySQL extension
+- MySQL 8.0 or higher
+- Web server (Apache/Nginx), PHP built-in server, or XAMPP
 - Modern web browser
+
+## For XAMPP Users
+
+If you're using XAMPP for local development, see the complete [XAMPP Setup Guide](XAMPP_SETUP_GUIDE.md) for detailed installation instructions specific to your environment.
 
 ## Quick Setup
 
