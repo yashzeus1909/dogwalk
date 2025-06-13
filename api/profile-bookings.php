@@ -43,13 +43,12 @@ switch($method) {
                 "time" => $booking_time,
                 "duration" => (int)$duration,
                 "phone" => $phone,
-                "email" => $email,
-                "instructions" => $instructions,
-                "serviceFee" => (int)$service_fee,
-                "appFee" => (int)$app_fee,
-                "total" => (int)$total,
+                "address" => isset($address) ? $address : '',
+                "email" => isset($email) ? $email : '',
+                "specialNotes" => isset($special_notes) ? $special_notes : '',
+                "totalPrice" => isset($total_price) ? $total_price : '',
                 "status" => $status,
-                "createdAt" => $created_at,
+                "createdAt" => isset($created_at) ? $created_at : '',
                 "walkerName" => isset($walker_name) ? $walker_name : 'Unknown Walker',
                 "walkerImage" => isset($walker_image) ? $walker_image : ''
             );

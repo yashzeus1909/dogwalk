@@ -38,7 +38,7 @@ class Booking {
     // Read bookings by user email
     function readByUser($email) {
         $query = "SELECT b.*, w.name as walker_name, w.image as walker_image,
-                         u.first_name, u.last_name
+                         u.first_name, u.last_name, u.email
                   FROM " . $this->table_name . " b
                   LEFT JOIN walkers w ON b.walker_id = w.id
                   LEFT JOIN users u ON b.user_id = u.id
