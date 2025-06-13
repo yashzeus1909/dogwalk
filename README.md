@@ -36,7 +36,28 @@ If you're using XAMPP for local development, see the complete [XAMPP Setup Guide
 
 ## Quick Setup
 
-### Option 1: Using Existing MySQL Database
+### Option 1: XAMPP (Recommended for Local Development)
+
+1. **Setup Project in XAMPP**:
+   ```bash
+   # Place files in: C:\xampp\htdocs\dogWalk\
+   cp .env.example .env
+   # No changes needed - .env is pre-configured for XAMPP
+   ```
+
+2. **Start XAMPP Services**:
+   - Open XAMPP Control Panel
+   - Start Apache and MySQL services
+
+3. **Initialize Database**:
+   ```bash
+   php scripts/setup_xampp_database.php
+   ```
+
+4. **Access Application**:
+   - Open: http://localhost/dogWalk/
+
+### Option 2: Using Existing MySQL Database
 
 1. **Download and extract all project files**
 2. **Configure environment**:
