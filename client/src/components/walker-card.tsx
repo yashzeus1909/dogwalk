@@ -42,7 +42,20 @@ export default function WalkerCard({ walker, onBook }: WalkerCardProps) {
     if (walker.certified) return "Certified trainer";
     if (walker.backgroundCheck) return "Background checked";
     if (walker.insured) return "Insured";
-    return walker.badges[0] || "";
+    
+    // Handle badges array from unknown type
+    let badges = [];
+    if (typeof walker.badges === 'string') {
+      try {
+        badges = JSON.parse(walker.badges);
+      } catch {
+        badges = [];
+      }
+    } else if (Array.isArray(walker.badges)) {
+      badges = walker.badges;
+    }
+    
+    return badges[0] || "";
   };
 
   return (
@@ -50,7 +63,7 @@ export default function WalkerCard({ walker, onBook }: WalkerCardProps) {
       <CardContent className="p-4">
         <div className="flex space-x-4">
           <img 
-            src={walker.image} 
+            src={walker.image || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop&crop=face"} 
             alt={`${walker.name} - Dog Walker`}
             className="w-16 h-16 rounded-full object-cover flex-shrink-0"
           />

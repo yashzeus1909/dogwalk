@@ -76,22 +76,32 @@ export default function EditWalker() {
   // Update form when walker data is loaded
   useEffect(() => {
     if (walker) {
+      const walkerData = walker as any; // Type assertion for compatibility
       form.reset({
-        name: walker.name || "",
-        image: walker.image || "",
-        rating: walker.rating || 0,
-        reviewCount: walker.reviewCount || 0,
-        distance: walker.distance || "",
-        price: walker.price || 25,
-        description: walker.description || "",
-        availability: walker.availability || "",
-        backgroundCheck: walker.backgroundCheck || false,
-        insured: walker.insured || false,
-        certified: walker.certified || false,
+        name: walkerData.name || "",
+        image: walkerData.image || "",
+        rating: (walkerData.rating || 0) / 10, // Convert from database integer to decimal
+        reviewCount: walkerData.reviewCount || 0,
+        distance: walkerData.distance || "",
+        price: walkerData.price || 25,
+        description: walkerData.description || "",
+        availability: walkerData.availability || "",
+        backgroundCheck: walkerData.backgroundCheck || false,
+        insured: walkerData.insured || false,
+        certified: walkerData.certified || false,
       });
 
       // Set badges
-      const walkerBadges = Array.isArray(walker.badges) ? walker.badges : [];
+      let walkerBadges = [];
+      if (typeof walkerData.badges === 'string') {
+        try {
+          walkerBadges = JSON.parse(walkerData.badges);
+        } catch {
+          walkerBadges = [];
+        }
+      } else if (Array.isArray(walkerData.badges)) {
+        walkerBadges = walkerData.badges;
+      }
       setSelectedBadges(walkerBadges);
     }
   }, [walker, form]);
