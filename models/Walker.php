@@ -68,7 +68,8 @@ class Walker {
             $this->price = $row['price'];
             $this->description = $row['description'];
             $this->availability = $row['availability'];
-            $this->badges = $row['badges'];
+            // Handle JSON badges for MySQL
+            $this->badges = $row['badges'] ? json_decode($row['badges'], true) : [];
             $this->background_check = $row['background_check'];
             $this->insured = $row['insured'];
             $this->certified = $row['certified'];
