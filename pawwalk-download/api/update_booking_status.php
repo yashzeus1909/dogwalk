@@ -17,6 +17,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
+    // Initialize database connection
+    $database = new Database();
+    $pdo = $database->getConnection();
+    
+    if (!$pdo) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+        exit;
+    }
+    
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!$input || !isset($input['id']) || !isset($input['status'])) {
