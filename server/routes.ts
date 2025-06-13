@@ -1,13 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { mysqlStorage } from "./mysql-storage";
+import { demoStorage } from "./demo-storage";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all walkers
   app.get("/api/walkers", async (_req, res) => {
     try {
-      const walkers = await mysqlStorage.getAllWalkers();
+      const walkers = await demoStorage.getAllWalkers();
       res.json(walkers);
     } catch (error) {
       console.error("Walkers fetch error:", error);
@@ -19,7 +19,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/walkers/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const walker = await storage.getWalker(id);
+      const walker = await demoStorage.getWalker(id);
       if (!walker) {
         return res.status(404).json({ message: "Walker not found" });
       }
