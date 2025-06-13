@@ -157,6 +157,9 @@ class Walker {
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->availability = htmlspecialchars(strip_tags($this->availability));
 
+        // Convert badges array to JSON for MySQL
+        $badges_json = is_array($this->badges) ? json_encode($this->badges) : $this->badges;
+
         // Bind data
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":name", $this->name);
@@ -168,7 +171,7 @@ class Walker {
         $stmt->bindParam(":price", $this->price);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":availability", $this->availability);
-        $stmt->bindParam(":badges", $this->badges);
+        $stmt->bindParam(":badges", $badges_json);
         $stmt->bindParam(":background_check", $this->background_check);
         $stmt->bindParam(":insured", $this->insured);
         $stmt->bindParam(":certified", $this->certified);
