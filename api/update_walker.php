@@ -22,6 +22,21 @@ try {
         throw new Exception('Database connection failed');
     }
     
+    // Check if email column exists in walkers table
+    $check_query = "SHOW COLUMNS FROM walkers LIKE 'email'";
+    $check_stmt = $db->prepare($check_query);
+    $check_stmt->execute();
+    
+    if ($check_stmt->rowCount() === 0) {
+        // Add email column if it doesn't exist
+        $alter_query = "ALTER TABLE walkers ADD COLUMN email VARCHAR(255) NOT NULL DEFAULT '' AFTER name";
+        $db->exec($alter_query);
+        
+        // Update existing walkers with placeholder emails
+        $update_query = "UPDATE walkers SET email = CONCAT('walker', id, '@example.com') WHERE email = ''";
+        $db->exec($update_query);
+    }
+    
     $walker = new Walker($db);
     
     // Get walker ID
