@@ -12,7 +12,7 @@ export default function Home() {
   const [selectedWalker, setSelectedWalker] = useState<Walker | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [searchLocation, setSearchLocation] = useState("");
-  const [selectedService, setSelectedService] = useState("Walking");
+  const [selectedService, setSelectedService] = useState("All Services");
 
   const { data: walkers = [], isLoading } = useQuery<Walker[]>({
     queryKey: ['/api/walkers'],
@@ -29,38 +29,52 @@ export default function Home() {
   };
 
   const filteredWalkers = walkers.filter((walker) => {
-    // Filter by service type
-    const serviceMapping = {
-      "Walking": "Dog Walking",
-      "Pet Sitting": "Pet Sitting", 
-      "Overnight": "Overnight Care",
-      "Grooming": "Grooming"
-    };
-    
-    const searchService = serviceMapping[selectedService as keyof typeof serviceMapping] || selectedService;
+    // If "All Services" is selected, show all walkers
+    if (selectedService === "All Services") {
+      // Only apply location filter
+      const hasLocation = !searchLocation || 
+                         walker.distance?.toLowerCase().includes(searchLocation.toLowerCase()) ||
+                         walker.availability?.toLowerCase().includes(searchLocation.toLowerCase());
+      return hasLocation;
+    }
     
     // Check if walker offers the selected service
     let hasService = false;
+    
+    // Check badges for exact service match
     if (walker.badges && Array.isArray(walker.badges)) {
-      // Check badges for service keywords
-      hasService = walker.badges.some(badge => 
-        badge.toLowerCase().includes(selectedService.toLowerCase())
-      );
+      hasService = walker.badges.some(badge => {
+        const badgeLower = badge.toLowerCase();
+        const serviceLower = selectedService.toLowerCase();
+        
+        // Direct matches
+        if (badgeLower.includes(serviceLower)) return true;
+        
+        // Service-specific matches
+        if (serviceLower === "dog walking" && (badgeLower.includes("walking") || badgeLower.includes("walk"))) return true;
+        if (serviceLower === "pet sitting" && (badgeLower.includes("sitting") || badgeLower.includes("pet sitting"))) return true;
+        if (serviceLower === "pet boarding" && badgeLower.includes("boarding")) return true;
+        if (serviceLower === "doggy daycare" && (badgeLower.includes("daycare") || badgeLower.includes("day care"))) return true;
+        if (serviceLower === "grooming" && badgeLower.includes("grooming")) return true;
+        
+        return false;
+      });
     }
     
-    // Also check description for service keywords
+    // Check description for service keywords
     if (!hasService && walker.description) {
       const descLower = walker.description.toLowerCase();
       const serviceLower = selectedService.toLowerCase();
-      hasService = descLower.includes(serviceLower) || 
-                  descLower.includes(searchService.toLowerCase()) ||
-                  (serviceLower === "walking" && descLower.includes("walk")) ||
-                  (serviceLower === "pet sitting" && descLower.includes("sit")) ||
-                  (serviceLower === "grooming" && descLower.includes("groom"));
+      
+      if (serviceLower === "dog walking" && (descLower.includes("walking") || descLower.includes("walk"))) hasService = true;
+      if (serviceLower === "pet sitting" && (descLower.includes("sitting") || descLower.includes("sit"))) hasService = true;
+      if (serviceLower === "pet boarding" && descLower.includes("boarding")) hasService = true;
+      if (serviceLower === "doggy daycare" && (descLower.includes("daycare") || descLower.includes("day care"))) hasService = true;
+      if (serviceLower === "grooming" && descLower.includes("groom")) hasService = true;
     }
     
-    // Default to showing all walkers for "Walking" service
-    if (!hasService && selectedService === "Walking") {
+    // Default: all walkers can do dog walking
+    if (!hasService && selectedService === "Dog Walking") {
       hasService = true;
     }
     

@@ -15,7 +15,7 @@ export default function SearchBar({
   selectedService, 
   onServiceChange 
 }: SearchBarProps) {
-  const services = ["Walking", "Pet Sitting", "Overnight", "Grooming"];
+  const services = ["All Services", "Dog Walking", "Pet Sitting", "Pet Boarding", "Doggy Daycare", "Grooming"];
 
   return (
     <div className="px-4 py-4 bg-white border-b border-gray-100">
