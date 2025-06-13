@@ -27,24 +27,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+    const [user] = await db.select().from(users).where(eq(users.email, username));
     return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
+    const result = await db.insert(users).values(insertUser);
+    const [user] = await db.select().from(users).where(eq(users.id, Number(result.insertId)));
     return user;
   }
 
   async updateUserProfile(id: number, profile: UpdateUserProfile): Promise<User | undefined> {
-    const [user] = await db
-      .update(users)
-      .set(profile)
-      .where(eq(users.id, id))
-      .returning();
+    await db.update(users).set(profile).where(eq(users.id, id));
+    const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
@@ -58,10 +53,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWalker(insertWalker: InsertWalker): Promise<Walker> {
-    const [walker] = await db
-      .insert(walkers)
-      .values(insertWalker)
-      .returning();
+    const result = await db.insert(walkers).values(insertWalker);
+    const [walker] = await db.select().from(walkers).where(eq(walkers.id, Number(result.insertId)));
     return walker;
   }
 
