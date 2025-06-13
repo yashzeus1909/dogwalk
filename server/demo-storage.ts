@@ -116,6 +116,26 @@ export class DemoStorage implements IStorage {
     return walker;
   }
 
+  async updateWalker(id: number, updates: Partial<InsertWalker>): Promise<Walker | undefined> {
+    const index = this.walkers.findIndex(w => w.id === id);
+    if (index === -1) return undefined;
+    
+    this.walkers[index] = {
+      ...this.walkers[index],
+      ...updates,
+      updatedAt: new Date()
+    };
+    return this.walkers[index];
+  }
+
+  async deleteWalker(id: number): Promise<boolean> {
+    const index = this.walkers.findIndex(w => w.id === id);
+    if (index === -1) return false;
+    
+    this.walkers.splice(index, 1);
+    return true;
+  }
+
   async getAllBookings(): Promise<Booking[]> {
     return this.bookings;
   }

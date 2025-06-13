@@ -11,6 +11,8 @@ export interface IStorage {
   getAllWalkers(): Promise<Walker[]>;
   getWalker(id: number): Promise<Walker | undefined>;
   createWalker(walker: InsertWalker): Promise<Walker>;
+  updateWalker(id: number, walker: Partial<InsertWalker>): Promise<Walker | undefined>;
+  deleteWalker(id: number): Promise<boolean>;
   
   getAllBookings(): Promise<Booking[]>;
   getBooking(id: number): Promise<Booking | undefined>;
@@ -88,6 +90,17 @@ export class DatabaseStorage implements IStorage {
     await db.update(bookings).set({ status }).where(eq(bookings.id, id));
     const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
     return booking || undefined;
+  }
+
+  async updateWalker(id: number, updates: Partial<InsertWalker>): Promise<Walker | undefined> {
+    await db.update(walkers).set(updates).where(eq(walkers.id, id));
+    const [walker] = await db.select().from(walkers).where(eq(walkers.id, id));
+    return walker || undefined;
+  }
+
+  async deleteWalker(id: number): Promise<boolean> {
+    const result = await db.delete(walkers).where(eq(walkers.id, id));
+    return result.affectedRows > 0;
   }
 }
 

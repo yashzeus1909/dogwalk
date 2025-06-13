@@ -47,6 +47,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update a walker
+  app.put("/api/walkers/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const walkerData = req.body;
+      
+      // Validate required fields
+      if (!walkerData.name || !walkerData.price) {
+        return res.status(400).json({ message: "Name and price are required" });
+      }
+
+      const walker = await demoStorage.updateWalker(id, walkerData);
+      if (!walker) {
+        return res.status(404).json({ message: "Walker not found" });
+      }
+      
+      res.json(walker);
+    } catch (error) {
+      console.error("Walker update error:", error);
+      res.status(500).json({ message: "Failed to update walker" });
+    }
+  });
+
+  // Delete a walker
+  app.delete("/api/walkers/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      const success = await demoStorage.deleteWalker(id);
+      if (!success) {
+        return res.status(404).json({ message: "Walker not found" });
+      }
+      
+      res.json({ message: "Walker deleted successfully" });
+    } catch (error) {
+      console.error("Walker deletion error:", error);
+      res.status(500).json({ message: "Failed to delete walker" });
+    }
+  });
+
   // Create a booking
   app.post("/api/bookings", async (req, res) => {
     try {
