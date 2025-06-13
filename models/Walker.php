@@ -101,10 +101,9 @@ class Walker {
     // Create walker
     function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                SET name=:name, email=:email, image=:image, rating=:rating, review_count=:review_count,
-                    distance=:distance, price=:price, description=:description,
-                    availability=:availability, badges=:badges, background_check=:background_check,
-                    insured=:insured, certified=:certified";
+                (name, email, image, rating, review_count, distance, price, description, 
+                 availability, badges, background_check, insured, certified) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->conn->prepare($query);
 
@@ -118,23 +117,30 @@ class Walker {
         // Convert badges array to JSON for MySQL
         $badges_json = is_array($this->badges) ? json_encode($this->badges) : $this->badges;
         
-        // Bind data
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":image", $this->image);
-        $stmt->bindParam(":rating", $this->rating);
-        $stmt->bindParam(":review_count", $this->review_count);
-        $stmt->bindParam(":distance", $this->distance);
-        $stmt->bindParam(":price", $this->price);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":availability", $this->availability);
-        $stmt->bindParam(":badges", $badges_json);
-        $stmt->bindParam(":background_check", $this->background_check);
-        $stmt->bindParam(":insured", $this->insured);
-        $stmt->bindParam(":certified", $this->certified);
+        // Execute with array of parameters
+        $params = [
+            $this->name,
+            $this->email,
+            $this->image,
+            $this->rating,
+            $this->review_count,
+            $this->distance,
+            $this->price,
+            $this->description,
+            $this->availability,
+            $badges_json,
+            $this->background_check,
+            $this->insured,
+            $this->certified
+        ];
 
-        if ($stmt->execute()) {
-            return true;
+        try {
+            if ($stmt->execute($params)) {
+                return true;
+            }
+        } catch (PDOException $e) {
+            error_log("Walker create error: " . $e->getMessage());
+            throw $e;
         }
         return false;
     }
@@ -142,11 +148,11 @@ class Walker {
     // Update walker
     function update() {
         $query = "UPDATE " . $this->table_name . " 
-                SET name=:name, email=:email, image=:image, rating=:rating, review_count=:review_count,
-                    distance=:distance, price=:price, description=:description,
-                    availability=:availability, badges=:badges, background_check=:background_check,
-                    insured=:insured, certified=:certified
-                WHERE id=:id";
+                SET name = ?, email = ?, image = ?, rating = ?, review_count = ?,
+                    distance = ?, price = ?, description = ?,
+                    availability = ?, badges = ?, background_check = ?,
+                    insured = ?, certified = ?
+                WHERE id = ?";
 
         $stmt = $this->conn->prepare($query);
 
@@ -160,24 +166,31 @@ class Walker {
         // Convert badges array to JSON for MySQL
         $badges_json = is_array($this->badges) ? json_encode($this->badges) : $this->badges;
 
-        // Bind data
-        $stmt->bindParam(":id", $this->id);
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":image", $this->image);
-        $stmt->bindParam(":rating", $this->rating);
-        $stmt->bindParam(":review_count", $this->review_count);
-        $stmt->bindParam(":distance", $this->distance);
-        $stmt->bindParam(":price", $this->price);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":availability", $this->availability);
-        $stmt->bindParam(":badges", $badges_json);
-        $stmt->bindParam(":background_check", $this->background_check);
-        $stmt->bindParam(":insured", $this->insured);
-        $stmt->bindParam(":certified", $this->certified);
+        // Execute with array of parameters
+        $params = [
+            $this->name,
+            $this->email,
+            $this->image,
+            $this->rating,
+            $this->review_count,
+            $this->distance,
+            $this->price,
+            $this->description,
+            $this->availability,
+            $badges_json,
+            $this->background_check,
+            $this->insured,
+            $this->certified,
+            $this->id
+        ];
 
-        if ($stmt->execute()) {
-            return true;
+        try {
+            if ($stmt->execute($params)) {
+                return true;
+            }
+        } catch (PDOException $e) {
+            error_log("Walker update error: " . $e->getMessage());
+            throw $e;
         }
         return false;
     }
