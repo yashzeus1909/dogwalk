@@ -47,6 +47,11 @@ export default function EditWalker() {
 
   const { data: walker, isLoading } = useQuery({
     queryKey: ["/api/walkers", walkerId],
+    queryFn: async () => {
+      const response = await fetch(`/api/walkers/${walkerId}`);
+      if (!response.ok) throw new Error('Walker not found');
+      return response.json();
+    },
     enabled: !!walkerId,
   });
 

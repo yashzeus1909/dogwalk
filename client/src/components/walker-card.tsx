@@ -1,6 +1,7 @@
-import { Star, Clock, CheckCircle } from "lucide-react";
+import { Star, Clock, CheckCircle, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "wouter";
 import type { Walker } from "@shared/schema";
 
 interface WalkerCardProps {
@@ -94,12 +95,23 @@ export default function WalkerCard({ walker, onBook }: WalkerCardProps) {
                   <span>{getBadgeText()}</span>
                 </div>
               </div>
-              <Button 
-                onClick={onBook}
-                className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90"
-              >
-                Book Now
-              </Button>
+              <div className="flex gap-2">
+                <Link href={`/edit-walker/${walker.id}`}>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="px-3 py-1"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Button 
+                  onClick={onBook}
+                  className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90"
+                >
+                  Book Now
+                </Button>
+              </div>
             </div>
           </div>
         </div>
