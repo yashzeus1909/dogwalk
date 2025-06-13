@@ -32,7 +32,7 @@ A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQu
 
 ## Quick Setup
 
-### Option 1: Using Existing PostgreSQL Database
+### Option 1: Using Existing MySQL Database
 
 1. **Download and extract all project files**
 2. **Configure environment**:
@@ -40,13 +40,13 @@ A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQu
    cp .env.example .env
    # Edit .env file with your database credentials
    ```
-   Update `.env` with your PostgreSQL connection details:
+   Update `.env` with your MySQL connection details:
    ```
-   DATABASE_URL=postgresql://your_user:your_password@localhost:5432/your_database
+   DATABASE_URL=mysql://your_user:your_password@localhost:3306/your_database
    ```
 3. **Initialize the database**:
    ```bash
-   php scripts/setup_database.php
+   php scripts/setup_mysql_database.php
    ```
 4. **Start the server**:
    ```bash
@@ -54,26 +54,29 @@ A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQu
    ```
 5. **Open browser**: Navigate to `http://localhost:8000`
 
-### Option 2: Fresh PostgreSQL Installation
+### Option 2: Fresh MySQL Installation
 
-1. **Install PostgreSQL**:
+1. **Install MySQL**:
    ```bash
    # Ubuntu/Debian
-   sudo apt update && sudo apt install postgresql postgresql-contrib php-pgsql
+   sudo apt update && sudo apt install mysql-server php-mysql
+   sudo mysql_secure_installation
    
    # macOS with Homebrew
-   brew install postgresql php
+   brew install mysql php
+   brew services start mysql
    
-   # Windows: Download from https://www.postgresql.org/download/
+   # Windows: Download from https://dev.mysql.com/downloads/mysql/
    ```
 
 2. **Create database and user**:
    ```bash
-   sudo -u postgres psql
-   CREATE DATABASE pawwalk_db;
-   CREATE USER pawwalk_user WITH PASSWORD 'secure_password';
-   GRANT ALL PRIVILEGES ON DATABASE pawwalk_db TO pawwalk_user;
-   \q
+   sudo mysql
+   CREATE DATABASE pawwalk_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE USER 'pawwalk_user'@'localhost' IDENTIFIED BY 'secure_password';
+   GRANT ALL PRIVILEGES ON pawwalk_db.* TO 'pawwalk_user'@'localhost';
+   FLUSH PRIVILEGES;
+   EXIT;
    ```
 
 3. **Configure environment**:
@@ -82,12 +85,12 @@ A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQu
    ```
    Edit `.env` and update the DATABASE_URL:
    ```
-   DATABASE_URL=postgresql://pawwalk_user:secure_password@localhost:5432/pawwalk_db
+   DATABASE_URL=mysql://pawwalk_user:secure_password@localhost:3306/pawwalk_db
    ```
 
 4. **Initialize database with sample data**:
    ```bash
-   php scripts/setup_database.php
+   php scripts/setup_mysql_database.php
    ```
 
 5. **Start the application**:

@@ -35,17 +35,12 @@ switch($method) {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             extract($row);
             
-            // Convert PostgreSQL array to PHP array
+            // Convert MySQL JSON to PHP array
             $badges_array = array();
             if ($badges) {
-                // Remove curly braces and split by comma
-                $badges_clean = trim($badges, '{}');
-                if (!empty($badges_clean)) {
-                    $badges_array = array_map('trim', explode(',', $badges_clean));
-                    // Remove quotes if present
-                    $badges_array = array_map(function($badge) {
-                        return trim($badge, '"');
-                    }, $badges_array);
+                $decoded_badges = json_decode($badges, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_badges)) {
+                    $badges_array = $decoded_badges;
                 }
             }
             
