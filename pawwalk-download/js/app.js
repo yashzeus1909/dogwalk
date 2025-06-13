@@ -158,10 +158,20 @@ $(document).ready(function() {
                             <span class="text-2xl font-bold text-green-600">$${walker.price}</span>
                             <span class="text-gray-500 text-sm">/hour</span>
                         </div>
-                        <button class="book-walker-btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200" 
-                                data-walker-id="${walker.id}">
-                            Book Now
-                        </button>
+                        <div class="flex gap-2">
+                            <button class="edit-walker-btn bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition duration-200" 
+                                    data-walker-id="${walker.id}" title="Edit Walker">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-walker-btn bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition duration-200" 
+                                    data-walker-id="${walker.id}" title="Delete Walker">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="book-walker-btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200" 
+                                    data-walker-id="${walker.id}">
+                                Book Now
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="mt-3 text-sm text-green-600">
@@ -201,6 +211,42 @@ $(document).ready(function() {
             const walkerId = parseInt($(this).data('walker-id'));
             currentWalker = walkers.find(w => w.id === walkerId);
             showBookingModal();
+        });
+
+        $('.edit-walker-btn').click(function() {
+            const walkerId = parseInt($(this).data('walker-id'));
+            window.location.href = `edit_walker.php?id=${walkerId}`;
+        });
+
+        $('.delete-walker-btn').click(function() {
+            const walkerId = parseInt($(this).data('walker-id'));
+            const walker = walkers.find(w => w.id === walkerId);
+            
+            if (confirm(`Are you sure you want to delete ${walker.name}? This action cannot be undone.`)) {
+                deleteWalker(walkerId);
+            }
+        });
+    }
+
+    function deleteWalker(walkerId) {
+        $.ajax({
+            url: 'api/delete_walker.php',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: walkerId }),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showToast(`Walker ${response.walker_name} deleted successfully!`, 'success');
+                    // Reload walkers list
+                    loadWalkers();
+                } else {
+                    showToast('Error: ' + response.message, 'error');
+                }
+            },
+            error: function() {
+                showToast('Failed to delete walker. Please try again.', 'error');
+            }
         });
     }
 
