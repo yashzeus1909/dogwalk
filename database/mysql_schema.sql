@@ -52,6 +52,7 @@ CREATE TABLE bookings (
     booking_time VARCHAR(20) NOT NULL,
     duration INT NOT NULL,
     phone VARCHAR(20) NOT NULL,
+    email VARCHAR(255) NOT NULL,
     address TEXT NOT NULL,
     special_notes TEXT,
     total_price DECIMAL(10,2) NOT NULL,
@@ -85,10 +86,10 @@ INSERT INTO walkers (name, image, rating, review_count, distance, price, descrip
 ('Lisa P.', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face', 50, 312, '0.3 miles away', 35, 'Professional dog trainer with 8+ years of experience. I specialize in behavioral training and can work with reactive or anxious dogs. Fully insured and bonded with excellent references.', 'Mon-Fri: 8AM-6PM', '["Dog Trainer", "Senior Care", "Behavioral Expert"]', true, true, true);
 
 -- Insert sample bookings
-INSERT INTO bookings (walker_id, user_id, dog_name, dog_size, booking_date, booking_time, duration, phone, address, special_notes, total_price, status) VALUES
-(1, 1, 'Rocky', 'Medium', '2024-01-15', '2:00 PM', 45, '555-0123', '123 Main St, Downtown', 'Rocky loves to play fetch and is very friendly with other dogs.', 28.75, 'confirmed'),
-(2, 2, 'Bella', 'Small', '2024-01-16', '10:00 AM', 30, '555-0456', '456 Oak Ave, Midtown', 'Bella is a bit shy but warms up quickly. Please be gentle.', 12.65, 'pending'),
-(3, 3, 'Max', 'Large', '2024-01-17', '4:00 PM', 60, '555-0789', '789 Pine Rd, Uptown', 'Max has lots of energy and needs a good long walk. He pulls on the leash sometimes.', 51.75, 'confirmed');
+INSERT INTO bookings (walker_id, user_id, dog_name, dog_size, booking_date, booking_time, duration, phone, email, address, special_notes, total_price, status) VALUES
+(1, 1, 'Rocky', 'Medium', '2024-01-15', '2:00 PM', 45, '555-0123', 'john.doe@example.com', '123 Main St, Downtown', 'Rocky loves to play fetch and is very friendly with other dogs.', 28.75, 'confirmed'),
+(2, 2, 'Bella', 'Small', '2024-01-16', '10:00 AM', 30, '555-0456', 'jane.smith@example.com', '456 Oak Ave, Midtown', 'Bella is a bit shy but warms up quickly. Please be gentle.', 12.65, 'pending'),
+(3, 3, 'Max', 'Large', '2024-01-17', '4:00 PM', 60, '555-0789', 'mike.johnson@example.com', '789 Pine Rd, Uptown', 'Max has lots of energy and needs a good long walk. He pulls on the leash sometimes.', 51.75, 'confirmed');
 
 -- Update walker ratings based on reviews (convert to decimal for display)
 -- Note: Stored as integers (0-50) for rating * 10, displayed as decimals (0.0-5.0)

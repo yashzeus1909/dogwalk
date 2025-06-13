@@ -42,6 +42,7 @@ switch($method) {
                 "time" => $booking_time,
                 "duration" => (int)$duration,
                 "phone" => $phone,
+                "email" => isset($email) ? $email : '',
                 "address" => isset($address) ? $address : '',
                 "instructions" => isset($special_notes) ? $special_notes : '',
                 "total" => (float)$total_price,
@@ -70,6 +71,7 @@ switch($method) {
             $booking->booking_time = $data->time;
             $booking->duration = $data->duration;
             $booking->phone = $data->phone;
+            $booking->email = $data->email ?? '';
             $booking->address = $data->address ?? '';
             $booking->special_notes = $data->instructions ?? '';
             $booking->total_price = $data->total;

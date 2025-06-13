@@ -12,6 +12,7 @@ class Booking {
     public $booking_time;
     public $duration;
     public $phone;
+    public $email;
     public $address;
     public $special_notes;
     public $total_price;
@@ -105,7 +106,7 @@ class Booking {
         $query = "INSERT INTO " . $this->table_name . " 
                 SET walker_id=:walker_id, user_id=:user_id, dog_name=:dog_name, 
                     dog_size=:dog_size, booking_date=:booking_date, booking_time=:booking_time,
-                    duration=:duration, phone=:phone, address=:address, special_notes=:special_notes,
+                    duration=:duration, phone=:phone, email=:email, address=:address, special_notes=:special_notes,
                     total_price=:total_price, status=:status";
 
         $stmt = $this->conn->prepare($query);
@@ -114,6 +115,7 @@ class Booking {
         $this->dog_name = htmlspecialchars(strip_tags($this->dog_name));
         $this->dog_size = htmlspecialchars(strip_tags($this->dog_size));
         $this->phone = htmlspecialchars(strip_tags($this->phone));
+        $this->email = htmlspecialchars(strip_tags($this->email));
         $this->address = htmlspecialchars(strip_tags($this->address));
         $this->special_notes = htmlspecialchars(strip_tags($this->special_notes));
 
@@ -126,6 +128,7 @@ class Booking {
         $stmt->bindParam(":booking_time", $this->booking_time);
         $stmt->bindParam(":duration", $this->duration);
         $stmt->bindParam(":phone", $this->phone);
+        $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":address", $this->address);
         $stmt->bindParam(":special_notes", $this->special_notes);
         $stmt->bindParam(":total_price", $this->total_price);
