@@ -82,6 +82,14 @@ if (is_array($walker->badges)) {
                     </div>
                     
                     <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                        <input type="email" id="email" name="email" required 
+                               value="<?php echo htmlspecialchars($walker->email ?? ''); ?>"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="walker@example.com">
+                    </div>
+                    
+                    <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Price per Hour ($) *</label>
                         <input type="number" id="price" name="price" required min="1"
                                value="<?php echo $walker->price; ?>"
