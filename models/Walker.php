@@ -37,6 +37,17 @@ class Walker {
             $query .= " AND (LOWER(distance) LIKE LOWER(:location) OR LOWER(name) LIKE LOWER(:location))";
         }
         
+        if (!empty($service_type) && $service_type !== 'All Services') {
+            // Search in badges JSON field and description for service type
+            $query .= " AND (JSON_SEARCH(LOWER(badges), 'one', LOWER(:service_type)) IS NOT NULL 
+                        OR LOWER(description) LIKE LOWER(:service_desc)
+                        OR (LOWER(:service_type) = 'dog walking' AND (LOWER(description) LIKE '%walk%' OR LOWER(badges) LIKE '%walk%'))
+                        OR (LOWER(:service_type) = 'pet sitting' AND (LOWER(description) LIKE '%sit%' OR LOWER(badges) LIKE '%sitting%'))
+                        OR (LOWER(:service_type) = 'pet boarding' AND LOWER(badges) LIKE '%boarding%')
+                        OR (LOWER(:service_type) = 'doggy daycare' AND LOWER(badges) LIKE '%daycare%')
+                        OR (LOWER(:service_type) = 'grooming' AND LOWER(badges) LIKE '%grooming%'))";
+        }
+        
         $query .= " ORDER BY rating DESC, review_count DESC";
         
         $stmt = $this->conn->prepare($query);
@@ -44,6 +55,13 @@ class Walker {
         if (!empty($location)) {
             $location_param = "%{$location}%";
             $stmt->bindParam(":location", $location_param);
+        }
+        
+        if (!empty($service_type) && $service_type !== 'All Services') {
+            $service_param = "%{$service_type}%";
+            $service_desc_param = "%{$service_type}%";
+            $stmt->bindParam(":service_type", $service_param);
+            $stmt->bindParam(":service_desc", $service_desc_param);
         }
         
         $stmt->execute();
