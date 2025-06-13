@@ -410,6 +410,13 @@ $(document).ready(function() {
             const bookingCard = createBookingCard(booking);
             container.append(bookingCard);
         });
+
+        // Bind status update events
+        $('.status-btn').click(function() {
+            const bookingId = $(this).data('booking-id');
+            const newStatus = $(this).data('status');
+            updateBookingStatus(bookingId, newStatus);
+        });
     }
 
     function createBookingCard(booking) {
@@ -460,11 +467,39 @@ $(document).ready(function() {
                 <div class="mt-3 flex items-center justify-between">
                     <div class="text-sm text-gray-600">
                         <i class="fas fa-dollar-sign text-gray-500"></i>
-                        Total: $${(booking.total / 100).toFixed(2)}
+                        Total: $${booking.totalPrice || '0.00'}
                     </div>
                     <div class="text-xs text-gray-500">
-                        ${new Date(booking.createdAt).toLocaleDateString()}
+                        Booking #${booking.id}
                     </div>
+                </div>
+                
+                <div class="mt-3 flex gap-2">
+                    ${booking.status === 'pending' ? `
+                        <button class="status-btn px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700" 
+                                data-booking-id="${booking.id}" data-status="confirmed">
+                            Confirm
+                        </button>
+                        <button class="status-btn px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700" 
+                                data-booking-id="${booking.id}" data-status="cancelled">
+                            Cancel
+                        </button>
+                    ` : ''}
+                    ${booking.status === 'confirmed' ? `
+                        <button class="status-btn px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700" 
+                                data-booking-id="${booking.id}" data-status="completed">
+                            Mark Complete
+                        </button>
+                        <button class="status-btn px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700" 
+                                data-booking-id="${booking.id}" data-status="cancelled">
+                            Cancel
+                        </button>
+                    ` : ''}
+                    ${booking.status === 'completed' || booking.status === 'cancelled' ? `
+                        <span class="px-3 py-1 text-xs bg-gray-200 text-gray-600 rounded">
+                            ${booking.status === 'completed' ? 'Service Completed' : 'Booking Cancelled'}
+                        </span>
+                    ` : ''}
                 </div>
                 
                 ${booking.instructions ? `
@@ -474,6 +509,38 @@ $(document).ready(function() {
                 ` : ''}
             </div>
         `;
+    }
+
+    function updateBookingStatus(bookingId, newStatus) {
+        const statusText = {
+            confirmed: 'confirm',
+            cancelled: 'cancel',
+            completed: 'complete'
+        };
+
+        if (confirm(`Are you sure you want to ${statusText[newStatus]} this booking?`)) {
+            $.ajax({
+                url: 'api/update_booking_status.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    id: bookingId,
+                    status: newStatus
+                }),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        showToast(`Booking ${statusText[newStatus]}ed successfully!`, 'success');
+                        loadBookings(); // Refresh the bookings list
+                    } else {
+                        showToast('Error: ' + response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Failed to update booking status. Please try again.', 'error');
+                }
+            });
+        }
     }
 
     function loadProfileData() {
