@@ -1,4 +1,5 @@
 <?php
+session_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -6,6 +7,13 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
+}
+
+// Check if walker is logged in
+if (!isset($_SESSION['walker_id']) || !isset($_SESSION['is_admin'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+    exit;
 }
 
 require_once '../config/database.php';
@@ -17,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
+    $walker_id = $_SESSION['walker_id'];
+    
     // Initialize database connection
     $database = new Database();
     $pdo = $database->getConnection();
@@ -29,13 +39,13 @@ try {
     
     $input = json_decode(file_get_contents('php://input'), true);
     
-    if (!$input || !isset($input['id']) || !isset($input['status'])) {
+    if (!$input || !isset($input['booking_id']) || !isset($input['status'])) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Missing required fields: id and status']);
+        echo json_encode(['success' => false, 'message' => 'Missing required fields: booking_id and status']);
         exit;
     }
     
-    $bookingId = (int)$input['id'];
+    $bookingId = (int)$input['booking_id'];
     $newStatus = trim($input['status']);
     
     // Validate status
@@ -46,8 +56,8 @@ try {
         exit;
     }
     
-    // Check if booking exists first
-    $checkStmt = $pdo->prepare("SELECT id, status FROM bookings WHERE id = ?");
+    // Check if booking exists and belongs to this walker
+    $checkStmt = $pdo->prepare("SELECT id, status, walker_id FROM bookings WHERE id = ?");
     $checkStmt->execute([$bookingId]);
     $booking = $checkStmt->fetch();
     
@@ -57,8 +67,15 @@ try {
         exit;
     }
     
+    // Verify that this booking belongs to the logged-in walker
+    if ($booking['walker_id'] != $walker_id) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'You can only update your own bookings']);
+        exit;
+    }
+    
     // Update booking status
-    $stmt = $pdo->prepare("UPDATE bookings SET status = ?, updated_at = NOW() WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE bookings SET status = ? WHERE id = ?");
     $result = $stmt->execute([$newStatus, $bookingId]);
     
     if ($result) {

@@ -109,6 +109,17 @@ class Walker {
         return $stmt->rowCount() > 0;
     }
 
+    // Get walker by email
+    public function getByEmail($email) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE email = ? LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $email);
+        $stmt->execute();
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row : false;
+    }
+
     // Create walker
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
