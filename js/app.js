@@ -92,18 +92,18 @@ $(document).ready(function () {
         $("#loadingState").addClass("show");
 
         $.ajax({
-            url: API_BASE + "walkers.php",
-            method: "GET",
-            dataType: "json",
-            success: function (data) {
+            url: '/api/walkers',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
                 walkers = data;
                 displayWalkers(walkers);
-                $("#loadingState").removeClass("show");
+                $('#loadingState').removeClass('show');
             },
-            error: function () {
-                $("#loadingState").removeClass("show");
-                showToast("Failed to load walkers", "error");
-            },
+            error: function() {
+                $('#loadingState').removeClass('show');
+                showToast('Failed to load walkers', 'error');
+            }
         });
     }
 
