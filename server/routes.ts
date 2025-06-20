@@ -1,13 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { demoStorage } from "./demo-storage";
+import { storage } from "./storage";
+import { insertWalkerSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all walkers
   app.get("/api/walkers", async (_req, res) => {
     try {
-      const walkers = await demoStorage.getAllWalkers();
+      const walkers = await storage.getAllWalkers();
       res.json(walkers);
     } catch (error) {
       console.error("Walkers fetch error:", error);
@@ -19,7 +20,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/walkers/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const walker = await demoStorage.getWalker(id);
+      const walker = await storage.getWalker(id);
       if (!walker) {
         return res.status(404).json({ message: "Walker not found" });
       }
@@ -32,17 +33,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new walker
   app.post("/api/walkers", async (req, res) => {
     try {
-      const walkerData = req.body;
+      // Validate the request body using the schema
+      const validatedData = insertWalkerSchema.parse(req.body);
       
-      // Validate required fields
-      if (!walkerData.name || !walkerData.price) {
-        return res.status(400).json({ message: "Name and price are required" });
+      // Check if email already exists
+      const existingWalker = await storage.getWalkerByEmail(validatedData.email);
+      if (existingWalker) {
+        return res.status(400).json({ message: "Email address is already registered" });
       }
 
-      const walker = await demoStorage.createWalker(walkerData);
+      const walker = await storage.createWalker(validatedData);
       res.status(201).json(walker);
     } catch (error) {
       console.error("Walker creation error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation error", 
+          details: error.errors 
+        });
+      }
       res.status(500).json({ message: "Failed to create walker" });
     }
   });
@@ -53,12 +62,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const walkerData = req.body;
       
-      // Validate required fields
-      if (!walkerData.name || !walkerData.price) {
-        return res.status(400).json({ message: "Name and price are required" });
+      // Check if updating email and if it's already taken by another walker
+      if (walkerData.email) {
+        const existingWalker = await storage.getWalkerByEmail(walkerData.email);
+        if (existingWalker && existingWalker.id !== id) {
+          return res.status(400).json({ message: "Email address is already registered" });
+        }
       }
 
-      const walker = await demoStorage.updateWalker(id, walkerData);
+      const walker = await storage.updateWalker(id, walkerData);
       if (!walker) {
         return res.status(404).json({ message: "Walker not found" });
       }
@@ -75,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       
-      const success = await demoStorage.deleteWalker(id);
+      const success = await storage.deleteWalker(id);
       if (!success) {
         return res.status(404).json({ message: "Walker not found" });
       }
@@ -90,7 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a booking
   app.post("/api/bookings", async (req, res) => {
     try {
-      const booking = await demoStorage.createBooking(req.body);
+      const booking = await storage.createBooking(req.body);
       res.status(201).json(booking);
     } catch (error) {
       console.error("Booking creation error:", error);

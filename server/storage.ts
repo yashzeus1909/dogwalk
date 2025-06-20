@@ -10,6 +10,7 @@ export interface IStorage {
   
   getAllWalkers(): Promise<Walker[]>;
   getWalker(id: number): Promise<Walker | undefined>;
+  getWalkerByEmail(email: string): Promise<Walker | undefined>;
   createWalker(walker: InsertWalker): Promise<Walker>;
   updateWalker(id: number, walker: Partial<InsertWalker>): Promise<Walker | undefined>;
   deleteWalker(id: number): Promise<boolean>;
@@ -52,6 +53,11 @@ export class DatabaseStorage implements IStorage {
 
   async getWalker(id: number): Promise<Walker | undefined> {
     const [walker] = await db.select().from(walkers).where(eq(walkers.id, id));
+    return walker || undefined;
+  }
+
+  async getWalkerByEmail(email: string): Promise<Walker | undefined> {
+    const [walker] = await db.select().from(walkers).where(eq(walkers.email, email));
     return walker || undefined;
   }
 

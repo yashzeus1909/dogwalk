@@ -5,6 +5,8 @@ import { z } from "zod";
 export const walkers = mysqlTable("walkers", {
   id: int("id").primaryKey().autoincrement(),
   name: varchar("name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  password: varchar("password", { length: 255 }).notNull(),
   image: varchar("image", { length: 500 }),
   rating: int("rating").notNull().default(0), // stored as integer (e.g., 49 for 4.9)
   reviewCount: int("review_count").notNull().default(0),

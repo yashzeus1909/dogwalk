@@ -15,6 +15,8 @@ import Header from "@/components/header";
 
 const walkerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Must be a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   rating: z.number().min(0).max(5).default(0),
   reviewCount: z.number().min(0).default(0),
@@ -45,6 +47,8 @@ export default function Admin() {
     resolver: zodResolver(walkerSchema),
     defaultValues: {
       name: "",
+      email: "",
+      password: "",
       image: "",
       rating: 0,
       reviewCount: 0,
@@ -73,7 +77,8 @@ export default function Admin() {
       });
       
       if (!response.ok) {
-        throw new Error("Failed to create walker");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create walker");
       }
       
       return response.json();
@@ -90,7 +95,7 @@ export default function Admin() {
     onError: (error) => {
       toast({
         title: "Error",
-        description: "Failed to add walker. Please try again.",
+        description: error.message || "Failed to add walker. Please try again.",
         variant: "destructive",
       });
     },
@@ -129,6 +134,34 @@ export default function Admin() {
                         <FormLabel>Name *</FormLabel>
                         <FormControl>
                           <Input placeholder="Walker's full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email *</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="walker@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password *</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Enter password" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
