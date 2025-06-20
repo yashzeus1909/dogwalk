@@ -24,7 +24,7 @@ class Walker {
     }
 
     // Read all walkers
-    function read() {
+    public function read() {
         $query = "SELECT * FROM " . $this->table_name . " ORDER BY rating DESC, review_count DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -32,7 +32,7 @@ class Walker {
     }
 
     // Search walkers
-    function search($location, $service_type) {
+    public function search($location, $service_type) {
         $query = "SELECT * FROM " . $this->table_name . " WHERE 1=1";
         
         if (!empty($location)) {
@@ -71,7 +71,7 @@ class Walker {
     }
 
     // Get single walker
-    function readOne() {
+    public function readOne() {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 0,1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
@@ -101,7 +101,7 @@ class Walker {
     }
 
     // Check if email exists
-    function emailExists($email) {
+    public function emailExists($email) {
         $query = "SELECT id FROM " . $this->table_name . " WHERE email = ? LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $email);
@@ -110,7 +110,7 @@ class Walker {
     }
 
     // Create walker
-    function create() {
+    public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
                 (name, email, password, image, rating, review_count, distance, price, description, 
                  availability, badges, background_check, insured, certified) 
@@ -159,7 +159,7 @@ class Walker {
     }
 
     // Update walker
-    function update() {
+    public function update() {
         // Build query dynamically based on whether password is being updated
         if (!empty($this->password)) {
             $query = "UPDATE " . $this->table_name . " 
@@ -240,7 +240,7 @@ class Walker {
     }
 
     // Delete walker
-    function delete() {
+    public function delete() {
         $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
