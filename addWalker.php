@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Add Walker | PawWalk</title>
+    <title>Add Walker | PawWalk</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -14,7 +14,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <img src="attached_assets/gold bone _1749526479486.jpeg" alt="PawWalk Logo" class="w-8 h-8 rounded-lg object-contain">
-                    <h1 class="text-xl font-bold text-gray-900">PawWalk Admin</h1>
+    <h1 class="text-xl font-bold text-gray-900">Add Walker</h1>
                 </div>
                 <button onclick="window.location.href='index.html'" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
                     ← Back to App
