@@ -211,32 +211,7 @@ $(document).ready(function() {
 
     // Booking modal functions removed - now using separate booking page
 
-    function updatePricingSummary() {
-        if (!currentWalker) return;
-        
-        const duration = parseInt($('#duration').val()) || 60;
-        const hourlyRate = currentWalker.price;
-        const serviceFee = Math.round(hourlyRate * (duration / 60) * 100); // in cents
-        const appFee = Math.round(serviceFee * 0.15); // 15% app fee
-        const total = serviceFee + appFee;
-
-        $('#pricingSummary').html(`
-            <div class="space-y-2">
-                <div class="flex justify-between">
-                    <span>Service (${duration} min)</span>
-                    <span>$${(serviceFee / 100).toFixed(2)}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>App fee</span>
-                    <span>$${(appFee / 100).toFixed(2)}</span>
-                </div>
-                <div class="border-t pt-2 flex justify-between font-semibold">
-                    <span>Total</span>
-                    <span>$${(total / 100).toFixed(2)}</span>
-                </div>
-            </div>
-        `);
-    }
+    // Pricing function removed - now handled in booking page
 
     function submitBooking() {
         if (!currentWalker) return;
