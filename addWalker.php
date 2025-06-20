@@ -53,6 +53,7 @@
                         <input type="password" id="password" name="password" required minlength="6"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                placeholder="Enter password (min. 6 characters)">
+                        <p class="text-sm text-gray-500 mt-1">Minimum 6 characters required</p>
                     </div>
                     
                     <div>
@@ -60,6 +61,7 @@
                         <input type="password" id="confirm_password" name="confirm_password" required minlength="6"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                placeholder="Confirm your password">
+                        <p id="password-match-message" class="text-sm mt-1 hidden"></p>
                     </div>
                     
                     <div>
@@ -205,12 +207,52 @@
             }
         }
 
+        // Real-time password validation
+        function validatePasswords() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const messageElement = document.getElementById('password-match-message');
+            const confirmInput = document.getElementById('confirm_password');
+            
+            if (confirmPassword.length === 0) {
+                messageElement.classList.add('hidden');
+                confirmInput.classList.remove('border-red-500', 'border-green-500');
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                messageElement.textContent = 'Passwords match';
+                messageElement.className = 'text-sm mt-1 text-green-600';
+                confirmInput.classList.remove('border-red-500');
+                confirmInput.classList.add('border-green-500');
+            } else {
+                messageElement.textContent = 'Passwords do not match';
+                messageElement.className = 'text-sm mt-1 text-red-600';
+                confirmInput.classList.remove('border-green-500');
+                confirmInput.classList.add('border-red-500');
+            }
+        }
+        
+        // Add event listeners for real-time validation
+        document.getElementById('password').addEventListener('input', validatePasswords);
+        document.getElementById('confirm_password').addEventListener('input', validatePasswords);
+
         document.getElementById('walkerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Check if passwords match
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (password.length < 6) {
+                document.getElementById('message-container').innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <strong>Error!</strong> Password must be at least 6 characters long.
+                    </div>
+                `;
+                document.getElementById('message-container').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
             
             if (password !== confirmPassword) {
                 document.getElementById('message-container').innerHTML = `
