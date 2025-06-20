@@ -20,10 +20,12 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Build the query
-    $query = "SELECT b.*, u.name as customer_name, u.email as customer_email 
+    // Build the query using bookings table fields directly
+    $query = "SELECT b.*, 
+                     b.email as customer_email,
+                     b.phone as customer_phone,
+                     '' as customer_name
               FROM bookings b 
-              LEFT JOIN users u ON b.user_id = u.id 
               WHERE b.walker_id = :walker_id";
     
     $params = [':walker_id' => $walker_id];

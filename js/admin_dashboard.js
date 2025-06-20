@@ -55,8 +55,8 @@ function displayBookings(bookings) {
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div>
-                        <div class="text-sm font-medium text-gray-900">${booking.customer_name || 'N/A'}</div>
-                        <div class="text-sm text-gray-500">${booking.customer_email || ''}</div>
+                        <div class="text-sm font-medium text-gray-900">${booking.customer_name || booking.email || 'Customer'}</div>
+                        <div class="text-sm text-gray-500">${booking.customer_email || booking.email || ''}</div>
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
