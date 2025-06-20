@@ -70,8 +70,13 @@ try {
     $walker = new Walker($db);
     
     // Validate required fields
-    if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['price'])) {
-        throw new Exception('Name, email, password, and price are required fields');
+    if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['confirm_password']) || empty($_POST['price'])) {
+        throw new Exception('Name, email, password, confirm password, and price are required fields');
+    }
+    
+    // Check if passwords match
+    if ($_POST['password'] !== $_POST['confirm_password']) {
+        throw new Exception('Password and confirm password do not match');
     }
     
     // Set walker properties
