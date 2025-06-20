@@ -9,10 +9,10 @@ let currentWalker = null;
 $(document).ready(function() {
 
     // Initialize the app
-    checkAuthStatus();
     loadWalkers();
     loadBookings();
     loadProfileData();
+    checkAuthStatus(); // Move auth check to end to prevent interference
 
     // Navigation handling
     $('.nav-item').click(function() {
@@ -46,9 +46,10 @@ $(document).ready(function() {
         closeBookingModal();
     });
 
-    // Booking form submission
-    $('#bookingForm').submit(function(e) {
+    // Booking form submission - ensure this binds after DOM is ready
+    $(document).on('submit', '#bookingForm', function(e) {
         e.preventDefault();
+        console.log('Booking form submitted - no redirect should happen');
         submitBooking();
     });
 
@@ -202,9 +203,11 @@ $(document).ready(function() {
     }
 
     function bindWalkerEvents() {
-        $('.book-walker-btn').click(function() {
+        $(document).on('click', '.book-walker-btn', function(e) {
+            e.preventDefault();
             const walkerId = parseInt($(this).data('walker-id'));
             currentWalker = walkers.find(w => w.id === walkerId);
+            console.log('Book walker clicked, showing modal for walker:', currentWalker?.name);
             showBookingModal();
         });
     }
@@ -212,7 +215,12 @@ $(document).ready(function() {
 
 
     function showBookingModal() {
-        if (!currentWalker) return;
+        if (!currentWalker) {
+            console.log('No current walker selected');
+            return;
+        }
+        
+        console.log('Showing booking modal for:', currentWalker.name);
         
         // Populate walker info
         $('#walkerInfo').html(`
@@ -232,7 +240,9 @@ $(document).ready(function() {
         // Update pricing summary
         updatePricingSummary();
 
-        $('#bookingModal').addClass('show');
+        // Show modal
+        $('#bookingModal').removeClass('hidden').addClass('show');
+        console.log('Booking modal should now be visible');
     }
 
     function closeBookingModal() {
