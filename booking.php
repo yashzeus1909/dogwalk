@@ -254,12 +254,12 @@
 
         function loadWalkerData(walkerId) {
             $.ajax({
-                url: 'api/get_walkers.php',
+                url: '/api/walkers',
                 method: 'GET',
                 dataType: 'json',
                 success: function(response) {
-                    if (response.success && response.walkers) {
-                        const walker = response.walkers.find(w => w.id == walkerId);
+                    if (response && Array.isArray(response)) {
+                        const walker = response.find(w => w.id == walkerId);
                         if (walker) {
                             walkerData = walker;
                             displayWalkerInfo(walker);
@@ -336,22 +336,22 @@
 
             // Collect form data
             const formData = {
-                walker_id: walkerData.id,
-                dog_name: $('#dogName').val(),
-                dog_size: $('#dogSize').val(),
-                special_instructions: $('#specialInstructions').val(),
+                walkerId: walkerData.id,
+                dogName: $('#dogName').val(),
+                dogSize: $('#dogSize').val(),
+                specialInstructions: $('#specialInstructions').val(),
                 date: $('#bookingDate').val(),
                 time: $('#bookingTime').val(),
                 duration: parseInt($('#duration').val()),
-                owner_name: $('#ownerName').val(),
+                ownerName: $('#ownerName').val(),
                 phone: $('#phone').val(),
                 email: $('#email').val(),
                 address: $('#address').val(),
-                total_price: parseFloat($('#totalPrice').text().replace('$', ''))
+                totalPrice: parseFloat($('#totalPrice').text().replace('$', ''))
             };
 
             // Validate required fields
-            const requiredFields = ['dog_name', 'dog_size', 'date', 'time', 'duration', 'owner_name', 'phone', 'email', 'address'];
+            const requiredFields = ['dogName', 'dogSize', 'date', 'time', 'duration', 'ownerName', 'phone', 'email', 'address'];
             for (let field of requiredFields) {
                 if (!formData[field]) {
                     showToast('Please fill in all required fields', 'error');
@@ -363,13 +363,13 @@
             $('#submitBooking').prop('disabled', true).text('Booking...');
 
             $.ajax({
-                url: 'api/add_booking.php',
+                url: '/api/bookings',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(formData),
                 dataType: 'json',
                 success: function(response) {
-                    if (response.success) {
+                    if (response.success || response.id) {
                         showToast('Booking confirmed! Redirecting...', 'success');
                         setTimeout(() => {
                             window.location.href = 'index.html?booking_success=1';

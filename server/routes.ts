@@ -113,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all bookings
   app.get("/api/bookings", async (_req, res) => {
     try {
-      const bookings = await demoStorage.getAllBookings();
+      const bookings = await storage.getAllBookings();
       res.json(bookings);
     } catch (error) {
       console.error("Bookings fetch error:", error);
