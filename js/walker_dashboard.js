@@ -78,21 +78,26 @@ function showDashboard() {
     document.getElementById('walker-price').textContent = `$${currentWalker.price}/hour`;
 }
 
-// Load walker's bookings
-async function loadBookings() {
+// Load walker's bookings using separate endpoint
+async function loadBookings(statusFilter = '', limit = 50, offset = 0) {
     if (!currentWalker) return;
 
     showLoading(true);
 
     try {
-        const response = await fetch(`api/walker_bookings.php?walker_id=${currentWalker.id}`);
+        let url = `api/walker_booking_list.php?walker_id=${currentWalker.id}&limit=${limit}&offset=${offset}`;
+        if (statusFilter) {
+            url += `&status=${statusFilter}`;
+        }
+
+        const response = await fetch(url);
         const result = await response.json();
 
         if (result.success) {
             currentBookings = result.bookings;
-            updateBookingStats();
+            updateBookingStatsFromAPI(result.stats);
             displayBookings();
-            document.getElementById('total-bookings').textContent = `${result.total_bookings} total bookings`;
+            document.getElementById('total-bookings').textContent = `${result.pagination.total} total bookings`;
         } else {
             showMessage(result.message || 'Failed to load bookings', 'error');
         }
@@ -104,35 +109,12 @@ async function loadBookings() {
     }
 }
 
-// Update booking statistics
-function updateBookingStats() {
-    const stats = {
-        pending: 0,
-        confirmed: 0,
-        completed: 0,
-        total_earnings: 0
-    };
-
-    currentBookings.forEach(booking => {
-        switch (booking.status) {
-            case 'pending':
-                stats.pending++;
-                break;
-            case 'confirmed':
-            case 'in_progress':
-                stats.confirmed++;
-                break;
-            case 'completed':
-                stats.completed++;
-                stats.total_earnings += parseFloat(booking.total_price) || 0;
-                break;
-        }
-    });
-
-    document.getElementById('pending-count').textContent = stats.pending;
-    document.getElementById('confirmed-count').textContent = stats.confirmed;
-    document.getElementById('completed-count').textContent = stats.completed;
-    document.getElementById('total-earnings').textContent = `$${stats.total_earnings.toFixed(2)}`;
+// Update booking statistics from API response
+function updateBookingStatsFromAPI(stats) {
+    document.getElementById('pending-count').textContent = stats.pending || 0;
+    document.getElementById('confirmed-count').textContent = (stats.confirmed || 0) + (stats.in_progress || 0);
+    document.getElementById('completed-count').textContent = stats.completed || 0;
+    document.getElementById('total-earnings').textContent = `$${(stats.total_earnings || 0).toFixed(2)}`;
 }
 
 // Display bookings list
@@ -180,7 +162,7 @@ function createBookingCard(booking) {
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                         <div>
-                            <p><strong>Customer:</strong> ${booking.customer_name}</p>
+                            <p><strong>Customer:</strong> ${booking.customer_name || 'N/A'}</p>
                             <p><strong>Dog Size:</strong> ${booking.dog_size}</p>
                             <p><strong>Date & Time:</strong> ${booking.booking_date} at ${booking.booking_time}</p>
                             <p><strong>Duration:</strong> ${booking.duration} minutes</p>
@@ -224,14 +206,14 @@ function createBookingCard(booking) {
     `;
 }
 
-// Update booking status
+// Update booking status using separate endpoint
 async function updateBookingStatus(bookingId, newStatus) {
     if (!newStatus) return;
 
     showLoading(true);
 
     try {
-        const response = await fetch('api/walker_bookings.php', {
+        const response = await fetch('api/walker_booking_actions.php', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -259,7 +241,7 @@ async function updateBookingStatus(bookingId, newStatus) {
     }
 }
 
-// Delete booking
+// Delete booking using separate endpoint
 async function deleteBooking(bookingId) {
     if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
         return;
@@ -268,7 +250,7 @@ async function deleteBooking(bookingId) {
     showLoading(true);
 
     try {
-        const response = await fetch('api/walker_bookings.php', {
+        const response = await fetch('api/walker_booking_actions.php', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -293,6 +275,71 @@ async function deleteBooking(bookingId) {
     } finally {
         showLoading(false);
     }
+}
+
+// Load walker profile using separate endpoint
+async function loadWalkerProfile() {
+    if (!currentWalker) return;
+
+    try {
+        const response = await fetch(`api/walker_profile_update.php?walker_id=${currentWalker.id}`);
+        const result = await response.json();
+
+        if (result.success) {
+            currentWalker = result.walker;
+            localStorage.setItem('walker_session', JSON.stringify(currentWalker));
+            updateProfileDisplay();
+        }
+    } catch (error) {
+        console.error('Error loading walker profile:', error);
+    }
+}
+
+// Update walker profile using separate endpoint
+async function updateWalkerProfile(profileData) {
+    if (!currentWalker) return;
+
+    showLoading(true);
+
+    try {
+        const response = await fetch('api/walker_profile_update.php', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                walker_id: currentWalker.id,
+                ...profileData
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            currentWalker = result.walker;
+            localStorage.setItem('walker_session', JSON.stringify(currentWalker));
+            showMessage('Profile updated successfully', 'success');
+            updateProfileDisplay();
+        } else {
+            showMessage(result.message || 'Failed to update profile', 'error');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showMessage('Failed to update profile', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Update profile display
+function updateProfileDisplay() {
+    if (!currentWalker) return;
+    
+    document.getElementById('walker-name').textContent = currentWalker.name;
+    document.getElementById('walker-title').textContent = currentWalker.name;
+    document.getElementById('walker-image').src = currentWalker.image || 'https://via.placeholder.com/64';
+    document.getElementById('walker-rating').textContent = `★ ${currentWalker.rating} (${currentWalker.review_count} reviews)`;
+    document.getElementById('walker-price').textContent = `$${currentWalker.price}/hour`;
 }
 
 // Logout function
