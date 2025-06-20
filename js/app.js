@@ -205,18 +205,7 @@ $(document).ready(function() {
         $('.book-walker-btn').click(function() {
             const walkerId = parseInt($(this).data('walker-id'));
             currentWalker = walkers.find(w => w.id === walkerId);
-            
-            // Check if user is logged in before showing booking modal
-            checkAuthStatus().then(isAuthenticated => {
-                if (isAuthenticated) {
-                    showBookingModal();
-                } else {
-                    showToast('Please login to book a walker', 'error');
-                    setTimeout(() => {
-                        window.location.href = 'customer_login.php';
-                    }, 1500);
-                }
-            });
+            showBookingModal();
         });
     }
 
