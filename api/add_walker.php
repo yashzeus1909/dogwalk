@@ -79,9 +79,13 @@ try {
         throw new Exception('Password and confirm password do not match');
     }
     
+    // Validate image upload is required
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('Profile image is required');
+    }
+
     // Handle image upload
     $image_path = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = '../uploads/walkers/';
         
         // Create upload directory if it doesn't exist
@@ -107,12 +111,11 @@ try {
         $unique_name = uniqid('walker_', true) . '.' . $file_extension;
         $upload_path = $upload_dir . $unique_name;
         
-        // Move uploaded file
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
-            $image_path = 'uploads/walkers/' . $unique_name;
-        } else {
-            throw new Exception('Failed to upload image');
-        }
+    // Move uploaded file
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
+        $image_path = 'uploads/walkers/' . $unique_name;
+    } else {
+        throw new Exception('Failed to upload image');
     }
 
     // Set walker properties
