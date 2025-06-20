@@ -12,7 +12,13 @@ $(document).ready(function() {
     loadWalkers();
     loadBookings();
     loadProfileData();
-    checkAuthStatus(); // Move auth check to end to prevent interference
+    // Remove auth check that was causing redirects
+    
+    // Check for booking success message
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('booking_success') === '1') {
+        showToast('Booking confirmed successfully!', 'success');
+    }
 
     // Navigation handling
     $('.nav-item').click(function() {
@@ -41,17 +47,7 @@ $(document).ready(function() {
         searchWalkers(location, serviceType);
     });
 
-    // Booking modal handling
-    $('#closeModal, #cancelBooking').click(function() {
-        closeBookingModal();
-    });
-
-    // Booking form submission - ensure this binds after DOM is ready
-    $(document).on('submit', '#bookingForm', function(e) {
-        e.preventDefault();
-        console.log('Booking form submitted - no redirect should happen');
-        submitBooking();
-    });
+    // Booking modal code removed - now using separate booking page
 
     // Profile form submission
     $('#profileForm').submit(function(e) {
@@ -206,51 +202,14 @@ $(document).ready(function() {
         $(document).on('click', '.book-walker-btn', function(e) {
             e.preventDefault();
             const walkerId = parseInt($(this).data('walker-id'));
-            currentWalker = walkers.find(w => w.id === walkerId);
-            console.log('Book walker clicked, showing modal for walker:', currentWalker?.name);
-            showBookingModal();
+            console.log('Book walker clicked, redirecting to booking page for walker ID:', walkerId);
+            window.location.href = `booking.php?walker_id=${walkerId}`;
         });
     }
 
 
 
-    function showBookingModal() {
-        if (!currentWalker) {
-            console.log('No current walker selected');
-            return;
-        }
-        
-        console.log('Showing booking modal for:', currentWalker.name);
-        
-        // Populate walker info
-        $('#walkerInfo').html(`
-            <div class="flex items-center space-x-3">
-                <img src="${currentWalker.image}" alt="${currentWalker.name}" class="w-12 h-12 rounded-full object-cover">
-                <div>
-                    <h4 class="font-semibold">${currentWalker.name}</h4>
-                    <p class="text-sm text-gray-600">$${currentWalker.price}/hour</p>
-                </div>
-            </div>
-        `);
-
-        // Set minimum date to today
-        const today = new Date().toISOString().split('T')[0];
-        $('#bookingDate').attr('min', today);
-
-        // Update pricing summary
-        updatePricingSummary();
-
-        // Show modal
-        $('#bookingModal').addClass('show').css('display', 'flex');
-        console.log('Booking modal should now be visible');
-    }
-
-    function closeBookingModal() {
-        $('#bookingModal').removeClass('show').css('display', 'none');
-        $('#bookingForm')[0].reset();
-        currentWalker = null;
-        console.log('Booking modal closed');
-    }
+    // Booking modal functions removed - now using separate booking page
 
     function updatePricingSummary() {
         if (!currentWalker) return;
@@ -599,13 +558,6 @@ $(document).ready(function() {
         }, 3000);
     }
 
-    // Event bindings
-    $(document).on('change', '#duration', updatePricingSummary);
-    
     // Initial event binding
     bindWalkerEvents();
-
-    // Set initial date input minimum
-    const today = new Date().toISOString().split('T')[0];
-    $('#bookingDate').attr('min', today);
 });
