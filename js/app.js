@@ -241,14 +241,15 @@ $(document).ready(function() {
         updatePricingSummary();
 
         // Show modal
-        $('#bookingModal').removeClass('hidden').addClass('show');
+        $('#bookingModal').addClass('show').css('display', 'flex');
         console.log('Booking modal should now be visible');
     }
 
     function closeBookingModal() {
-        $('#bookingModal').removeClass('show');
+        $('#bookingModal').removeClass('show').css('display', 'none');
         $('#bookingForm')[0].reset();
         currentWalker = null;
+        console.log('Booking modal closed');
     }
 
     function updatePricingSummary() {
