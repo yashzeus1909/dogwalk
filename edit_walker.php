@@ -90,6 +90,14 @@ if (is_array($walker->badges)) {
                     </div>
                     
                     <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="password" name="password" minlength="6"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Leave blank to keep current password">
+                        <p class="text-xs text-gray-500 mt-1">Leave blank to keep current password</p>
+                    </div>
+                    
+                    <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Price per Hour ($) *</label>
                         <input type="number" id="price" name="price" required min="1"
                                value="<?php echo $walker->price; ?>"

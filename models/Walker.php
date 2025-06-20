@@ -6,6 +6,7 @@ class Walker {
     public $id;
     public $name;
     public $email;
+    public $password;
     public $image;
     public $rating;
     public $review_count;
@@ -81,6 +82,7 @@ class Walker {
         if ($row) {
             $this->name = $row['name'];
             $this->email = $row['email'];
+            $this->password = $row['password'];
             $this->image = $row['image'];
             $this->rating = $row['rating'];
             $this->review_count = $row['review_count'];
@@ -98,18 +100,28 @@ class Walker {
         return false;
     }
 
+    // Check if email exists
+    function emailExists($email) {
+        $query = "SELECT id FROM " . $this->table_name . " WHERE email = ? LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $email);
+        $stmt->execute();
+        return $stmt->rowCount() > 0;
+    }
+
     // Create walker
     function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                (name, email, image, rating, review_count, distance, price, description, 
+                (name, email, password, image, rating, review_count, distance, price, description, 
                  availability, badges, background_check, insured, certified) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->conn->prepare($query);
 
         // Sanitize
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->email = htmlspecialchars(strip_tags($this->email));
+        $this->password = password_hash($this->password, PASSWORD_DEFAULT);
         $this->image = htmlspecialchars(strip_tags($this->image));
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->availability = htmlspecialchars(strip_tags($this->availability));
@@ -121,6 +133,7 @@ class Walker {
         $params = [
             $this->name,
             $this->email,
+            $this->password,
             $this->image,
             $this->rating,
             $this->review_count,
@@ -147,12 +160,22 @@ class Walker {
 
     // Update walker
     function update() {
-        $query = "UPDATE " . $this->table_name . " 
-                SET name = ?, email = ?, image = ?, rating = ?, review_count = ?,
-                    distance = ?, price = ?, description = ?,
-                    availability = ?, badges = ?, background_check = ?,
-                    insured = ?, certified = ?
-                WHERE id = ?";
+        // Build query dynamically based on whether password is being updated
+        if (!empty($this->password)) {
+            $query = "UPDATE " . $this->table_name . " 
+                    SET name = ?, email = ?, password = ?, image = ?, rating = ?, review_count = ?,
+                        distance = ?, price = ?, description = ?,
+                        availability = ?, badges = ?, background_check = ?,
+                        insured = ?, certified = ?
+                    WHERE id = ?";
+        } else {
+            $query = "UPDATE " . $this->table_name . " 
+                    SET name = ?, email = ?, image = ?, rating = ?, review_count = ?,
+                        distance = ?, price = ?, description = ?,
+                        availability = ?, badges = ?, background_check = ?,
+                        insured = ?, certified = ?
+                    WHERE id = ?";
+        }
 
         $stmt = $this->conn->prepare($query);
 
@@ -167,22 +190,43 @@ class Walker {
         $badges_json = is_array($this->badges) ? json_encode($this->badges) : $this->badges;
 
         // Execute with array of parameters
-        $params = [
-            $this->name,
-            $this->email,
-            $this->image,
-            $this->rating,
-            $this->review_count,
-            $this->distance,
-            $this->price,
-            $this->description,
-            $this->availability,
-            $badges_json,
-            $this->background_check,
-            $this->insured,
-            $this->certified,
-            $this->id
-        ];
+        if (!empty($this->password)) {
+            $hashed_password = password_hash($this->password, PASSWORD_DEFAULT);
+            $params = [
+                $this->name,
+                $this->email,
+                $hashed_password,
+                $this->image,
+                $this->rating,
+                $this->review_count,
+                $this->distance,
+                $this->price,
+                $this->description,
+                $this->availability,
+                $badges_json,
+                $this->background_check,
+                $this->insured,
+                $this->certified,
+                $this->id
+            ];
+        } else {
+            $params = [
+                $this->name,
+                $this->email,
+                $this->image,
+                $this->rating,
+                $this->review_count,
+                $this->distance,
+                $this->price,
+                $this->description,
+                $this->availability,
+                $badges_json,
+                $this->background_check,
+                $this->insured,
+                $this->certified,
+                $this->id
+            ];
+        }
 
         try {
             if ($stmt->execute($params)) {
