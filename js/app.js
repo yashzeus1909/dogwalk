@@ -1,5 +1,4 @@
 // Global variables
-const API_BASE = "api/";
 let walkers = [];
 let bookings = [];
 let currentWalker = null;
@@ -267,49 +266,42 @@ $(document).ready(function () {
         $("#confirmBooking").prop("disabled", true).text("Booking...");
 
         $.ajax({
-            url: API_BASE + "add_booking.php",
-            method: "POST",
-            contentType: "application/json",
+            url: '/api/bookings',
+            method: 'POST',
+            contentType: 'application/json',
             data: JSON.stringify(bookingData),
-            success: function (response) {
-                if (response.success) {
-                    closeBookingModal();
-                    showToast(
-                        "Booking request submitted successfully!",
-                        "success",
-                    );
+            success: function(response) {
+                if (response.success || response.id) {
+                    showToast('Booking request submitted successfully!', 'success');
                     loadBookings(); // Refresh bookings
                 } else {
-                    showToast("Error: " + response.message, "error");
+                    showToast('Error: ' + (response.message || 'Unknown error'), 'error');
                 }
             },
-            error: function () {
-                showToast(
-                    "Failed to submit booking. Please try again.",
-                    "error",
-                );
+            error: function() {
+                showToast('Failed to submit booking. Please try again.', 'error');
             },
-            complete: function () {
-                $("#confirmBooking").prop("disabled", false).text("Book Now");
-            },
+            complete: function() {
+                $('#confirmBooking').prop('disabled', false).text('Book Now');
+            }
         });
     }
 
     function loadBookings() {
         const container = $("#bookingsList");
         container.html(
-            '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading bookings...</div>',
+            '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading bookings...</div>'
         );
 
         $.ajax({
-            url: API_BASE + "bookings.php",
-            method: "GET",
-            dataType: "json",
-            success: function (data) {
+            url: '/api/bookings',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
                 bookings = data;
                 displayBookings(bookings, container);
             },
-            error: function () {
+            error: function() {
                 container.html(`
                     <div class="text-center py-8 text-gray-500">
                         <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
@@ -319,7 +311,7 @@ $(document).ready(function () {
                         </button>
                     </div>
                 `);
-            },
+            }
         });
     }
 

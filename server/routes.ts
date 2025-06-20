@@ -110,6 +110,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update booking status
+  app.patch("/api/bookings/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const booking = await storage.updateBookingStatus(id, status);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      res.json(booking);
+    } catch (error) {
+      console.error("Booking update error:", error);
+      res.status(500).json({ message: "Failed to update booking" });
+    }
+  });
+
   // Get all bookings
   app.get("/api/bookings", async (_req, res) => {
     try {

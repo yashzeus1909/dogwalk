@@ -110,4 +110,6 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Use demo storage for now since database connection is failing
+import { demoStorage } from "./demo-storage";
+export const storage = demoStorage;
