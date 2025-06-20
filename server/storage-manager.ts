@@ -11,46 +11,61 @@ class MemStorage implements IStorage {
       id: 1,
       name: "Sarah Johnson",
       email: "sarah@example.com",
-      phone: "+1-555-0123",
-      location: "Downtown",
-      rating: 4.8,
-      hourlyRate: 25,
+      password: "password123",
+      image: "https://images.unsplash.com/photo-1494790108755-2616b332c371?w=400&h=400&fit=crop&crop=face",
+      rating: 48,
+      reviewCount: 127,
+      distance: "1.2 miles",
+      price: 25,
+      description: "5 years professional dog walking experience with large breeds and senior dogs",
       availability: "Mon-Fri 9am-5pm",
-      experience: "5 years professional dog walking experience",
-      specialties: "Large breeds, senior dogs",
-      profileImage: "https://images.unsplash.com/photo-1494790108755-2616b332c371?w=400&h=400&fit=crop&crop=face",
-      verified: true,
-      createdAt: new Date()
+      badges: ["Verified", "Insured", "Background Checked"],
+      services: ["Dog Walking", "Pet Sitting"],
+      backgroundCheck: true,
+      insured: true,
+      certified: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: 2,
       name: "Mike Chen",
       email: "mike@example.com",
-      phone: "+1-555-0124",
-      location: "Midtown",
-      rating: 4.6,
-      hourlyRate: 22,
+      password: "password123",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+      rating: 46,
+      reviewCount: 89,
+      distance: "0.8 miles",
+      price: 22,
+      description: "3 years part-time dog walking with specialization in small dogs and puppies",
       availability: "Weekends and evenings",
-      experience: "3 years part-time dog walking",
-      specialties: "Small dogs, puppies",
-      profileImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-      verified: true,
-      createdAt: new Date()
+      badges: ["Verified", "Insured"],
+      services: ["Dog Walking", "Grooming"],
+      backgroundCheck: true,
+      insured: true,
+      certified: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: 3,
       name: "Emma Rodriguez",
       email: "emma@example.com",
-      phone: "+1-555-0125",
-      location: "Uptown",
-      rating: 4.9,
-      hourlyRate: 30,
+      password: "password123",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+      rating: 49,
+      reviewCount: 203,
+      distance: "1.5 miles",
+      price: 30,
+      description: "7 years professional pet care with expertise in multiple dogs and behavioral training",
       availability: "Daily 6am-8pm",
-      experience: "7 years professional pet care",
-      specialties: "Multiple dogs, behavioral training",
-      profileImage: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
-      verified: true,
-      createdAt: new Date()
+      badges: ["Verified", "Insured", "Background Checked", "Certified"],
+      services: ["Dog Walking", "Pet Sitting", "Training"],
+      backgroundCheck: true,
+      insured: true,
+      certified: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
   private bookings: Booking[] = [];
@@ -92,15 +107,39 @@ class MemStorage implements IStorage {
     return this.walkers.find(w => w.id === id);
   }
 
+  async getWalkerByEmail(email: string): Promise<Walker | undefined> {
+    return this.walkers.find(w => w.email === email);
+  }
+
   async createWalker(insertWalker: InsertWalker): Promise<Walker> {
     const walker: Walker = {
       id: this.nextWalkerId++,
       ...insertWalker,
-      verified: false,
-      createdAt: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     this.walkers.push(walker);
     return walker;
+  }
+
+  async updateWalker(id: number, updates: Partial<InsertWalker>): Promise<Walker | undefined> {
+    const walkerIndex = this.walkers.findIndex(w => w.id === id);
+    if (walkerIndex === -1) return undefined;
+    
+    this.walkers[walkerIndex] = { 
+      ...this.walkers[walkerIndex], 
+      ...updates,
+      updatedAt: new Date()
+    };
+    return this.walkers[walkerIndex];
+  }
+
+  async deleteWalker(id: number): Promise<boolean> {
+    const walkerIndex = this.walkers.findIndex(w => w.id === id);
+    if (walkerIndex === -1) return false;
+    
+    this.walkers.splice(walkerIndex, 1);
+    return true;
   }
 
   async getAllBookings(): Promise<Booking[]> {
