@@ -56,6 +56,13 @@
                     </div>
                     
                     <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required minlength="6"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Confirm your password">
+                    </div>
+                    
+                    <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Price per Hour ($) *</label>
                         <input type="number" id="price" name="price" required min="1"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -178,6 +185,20 @@
     <script>
         document.getElementById('walkerForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Check if passwords match
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('message-container').innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <strong>Error!</strong> Passwords do not match.
+                    </div>
+                `;
+                document.getElementById('message-container').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
             
             const formData = new FormData(this);
             
