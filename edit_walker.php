@@ -69,7 +69,7 @@ if (is_array($walker->badges)) {
             <!-- Success/Error Messages -->
             <div id="message-container" class="mb-4"></div>
 
-            <form id="walkerForm" class="space-y-6">
+            <form id="walkerForm" class="space-y-6" enctype="multipart/form-data">
                 <input type="hidden" id="walker_id" value="<?php echo $walker->id; ?>">
                 
                 <!-- Basic Information -->
@@ -105,10 +105,20 @@ if (is_array($walker->badges)) {
                     </div>
                     
                     <div>
-                        <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Profile Image URL</label>
-                        <input type="url" id="image" name="image"
-                               value="<?php echo htmlspecialchars($walker->image); ?>"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
+                        <?php if ($walker->image): ?>
+                            <div class="mb-2">
+                                <img src="<?php echo htmlspecialchars($walker->image); ?>" alt="Current image" class="w-24 h-24 object-cover rounded-lg border">
+                                <p class="text-xs text-gray-500">Current image</p>
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" id="image" name="image" accept="image/*"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               onchange="previewImage(this)">
+                        <p class="text-xs text-gray-500 mt-1">Upload new JPG, PNG or GIF (max 5MB) - leave blank to keep current image</p>
+                        <div id="imagePreview" class="mt-2 hidden">
+                            <img id="previewImg" src="" alt="Preview" class="w-24 h-24 object-cover rounded-lg border">
+                        </div>
                     </div>
                     
                     <div>
@@ -205,6 +215,24 @@ if (is_array($walker->badges)) {
     </main>
 
     <script>
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.classList.add('hidden');
+            }
+        }
+
         function updateWalker() {
             const formData = new FormData(document.getElementById('walkerForm'));
             

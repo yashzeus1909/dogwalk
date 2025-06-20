@@ -68,12 +68,59 @@ try {
         throw new Exception('Name, email, and price are required fields');
     }
     
+    // Handle image upload
+    $image_path = null;
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = '../uploads/walkers/';
+        
+        // Create upload directory if it doesn't exist
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+        
+        $file_info = pathinfo($_FILES['image']['name']);
+        $file_extension = strtolower($file_info['extension']);
+        
+        // Validate file type
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+        if (!in_array($file_extension, $allowed_extensions)) {
+            throw new Exception('Invalid file type. Only JPG, PNG and GIF are allowed.');
+        }
+        
+        // Validate file size (5MB max)
+        if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
+            throw new Exception('File size too large. Maximum 5MB allowed.');
+        }
+        
+        // Generate unique filename
+        $unique_name = uniqid('walker_', true) . '.' . $file_extension;
+        $upload_path = $upload_dir . $unique_name;
+        
+        // Move uploaded file
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
+            $image_path = 'uploads/walkers/' . $unique_name;
+            
+            // Delete old image if it exists and is not a URL
+            if ($walker->image && !filter_var($walker->image, FILTER_VALIDATE_URL)) {
+                $old_image_path = '../' . $walker->image;
+                if (file_exists($old_image_path)) {
+                    unlink($old_image_path);
+                }
+            }
+        } else {
+            throw new Exception('Failed to upload image');
+        }
+    }
+
     // Set walker properties
     $walker->name = trim($_POST['name']);
     $walker->email = trim($_POST['email']);
     $walker->password = !empty($_POST['password']) ? trim($_POST['password']) : null;
     $walker->price = (int)$_POST['price'];
-    $walker->image = !empty($_POST['image']) ? trim($_POST['image']) : null;
+    // Only update image if new one was uploaded
+    if ($image_path !== null) {
+        $walker->image = $image_path;
+    }
     $walker->distance = !empty($_POST['distance']) ? trim($_POST['distance']) : null;
     $walker->description = !empty($_POST['description']) ? trim($_POST['description']) : null;
     $walker->availability = !empty($_POST['availability']) ? trim($_POST['availability']) : null;
@@ -132,10 +179,7 @@ try {
         throw new Exception('Password must be at least 6 characters long');
     }
     
-    // Validate image URL if provided
-    if ($walker->image && !filter_var($walker->image, FILTER_VALIDATE_URL)) {
-        throw new Exception('Invalid image URL format');
-    }
+    // No need to validate image URL since we're handling file uploads
     
     // Update the walker
     if ($walker->update()) {

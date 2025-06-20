@@ -31,7 +31,7 @@
             <!-- Success/Error Messages -->
             <div id="message-container" class="mb-4"></div>
 
-            <form id="walkerForm" action="api/add_walker.php" method="POST" class="space-y-6">
+            <form id="walkerForm" action="api/add_walker.php" method="POST" enctype="multipart/form-data" class="space-y-6">
                 <!-- Basic Information -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -70,10 +70,14 @@
                     </div>
                     
                     <div>
-                        <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Profile Image URL</label>
-                        <input type="url" id="image" name="image"
+                        <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
+                        <input type="file" id="image" name="image" accept="image/*"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="https://example.com/photo.jpg">
+                               onchange="previewImage(this)">
+                        <p class="text-xs text-gray-500 mt-1">Upload JPG, PNG or GIF (max 5MB)</p>
+                        <div id="imagePreview" class="mt-2 hidden">
+                            <img id="previewImg" src="" alt="Preview" class="w-24 h-24 object-cover rounded-lg border">
+                        </div>
                     </div>
                     
                     <div>
@@ -183,6 +187,24 @@
     </main>
 
     <script>
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.classList.add('hidden');
+            }
+        }
+
         document.getElementById('walkerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
