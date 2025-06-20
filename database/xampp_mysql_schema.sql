@@ -18,6 +18,7 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(20),
     address TEXT,
+    password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -70,11 +71,11 @@ CREATE INDEX idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX idx_bookings_status ON bookings(status);
 CREATE INDEX idx_bookings_date ON bookings(booking_date);
 
--- Insert sample users
-INSERT INTO users (first_name, last_name, email, phone, address) VALUES
-('John', 'Doe', 'john.doe@example.com', '555-0123', '123 Main St, Downtown'),
-('Jane', 'Smith', 'jane.smith@example.com', '555-0456', '456 Oak Ave, Midtown'),
-('Mike', 'Johnson', 'mike.johnson@example.com', '555-0789', '789 Pine Rd, Uptown');
+-- Insert sample users (with default password 'password123')
+INSERT INTO users (first_name, last_name, email, phone, address, password) VALUES
+('John', 'Doe', 'john.doe@example.com', '555-0123', '123 Main St, Downtown', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+('Jane', 'Smith', 'jane.smith@example.com', '555-0456', '456 Oak Ave, Midtown', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+('Mike', 'Johnson', 'mike.johnson@example.com', '555-0789', '789 Pine Rd, Uptown', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
 
 -- Insert sample walkers with JSON badges
 INSERT INTO walkers (name, image, rating, review_count, distance, price, description, availability, badges, background_check, insured, certified) VALUES

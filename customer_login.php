@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Login - PawWalk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
+                    <i class="fas fa-user text-blue-600 text-xl"></i>
+                </div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Customer Login
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Sign in to book dog walking services
+                </p>
+            </div>
+            
+            <!-- Toggle between Login and Register -->
+            <div class="flex justify-center mb-6">
+                <div class="bg-gray-200 p-1 rounded-lg">
+                    <button id="loginTab" class="px-4 py-2 rounded-md text-sm font-medium bg-blue-600 text-white">
+                        Login
+                    </button>
+                    <button id="registerTab" class="px-4 py-2 rounded-md text-sm font-medium text-gray-700">
+                        Register
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Login Form -->
+            <form class="mt-8 space-y-6" id="loginForm">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="loginEmail" class="sr-only">Email address</label>
+                        <input id="loginEmail" name="email" type="email" autocomplete="email" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                               placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="sr-only">Password</label>
+                        <input id="loginPassword" name="password" type="password" autocomplete="current-password" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                               placeholder="Password">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-lock text-blue-500 group-hover:text-blue-400"></i>
+                        </span>
+                        Sign in
+                    </button>
+                </div>
+            </form>
+
+            <!-- Register Form -->
+            <form class="mt-8 space-y-6 hidden" id="registerForm">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                            <input id="firstName" name="firstName" type="text" required 
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                                   placeholder="First Name">
+                        </div>
+                        <div>
+                            <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                            <input id="lastName" name="lastName" type="text" required 
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                                   placeholder="Last Name">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="registerEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input id="registerEmail" name="email" type="email" required 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                               placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                        <input id="phone" name="phone" type="tel" required 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                               placeholder="Phone number">
+                    </div>
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                        <input id="address" name="address" type="text" required 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                               placeholder="Your address">
+                    </div>
+                    <div>
+                        <label for="registerPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input id="registerPassword" name="password" type="password" required minlength="6"
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                               placeholder="Password (min. 6 characters)">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-user-plus text-green-500 group-hover:text-green-400"></i>
+                        </span>
+                        Create Account
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center">
+                <a href="index.html" class="font-medium text-blue-600 hover:text-blue-500">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="fixed top-4 right-4 transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg">
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Tab switching
+            $('#loginTab').click(function() {
+                $(this).addClass('bg-blue-600 text-white').removeClass('text-gray-700');
+                $('#registerTab').removeClass('bg-blue-600 text-white').addClass('text-gray-700');
+                $('#loginForm').removeClass('hidden');
+                $('#registerForm').addClass('hidden');
+            });
+
+            $('#registerTab').click(function() {
+                $(this).addClass('bg-blue-600 text-white').removeClass('text-gray-700');
+                $('#loginTab').removeClass('bg-blue-600 text-white').addClass('text-gray-700');
+                $('#registerForm').removeClass('hidden');
+                $('#loginForm').addClass('hidden');
+            });
+
+            // Login form submission
+            $('#loginForm').submit(function(e) {
+                e.preventDefault();
+                
+                const email = $('#loginEmail').val();
+                const password = $('#loginPassword').val();
+                
+                $.ajax({
+                    url: 'api/customer_login.php',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        email: email,
+                        password: password
+                    }),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('Login successful! Redirecting...', 'success');
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1000);
+                        } else {
+                            showToast(response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        showToast('Login failed. Please try again.', 'error');
+                    }
+                });
+            });
+
+            // Register form submission
+            $('#registerForm').submit(function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    firstName: $('#firstName').val(),
+                    lastName: $('#lastName').val(),
+                    email: $('#registerEmail').val(),
+                    phone: $('#phone').val(),
+                    address: $('#address').val(),
+                    password: $('#registerPassword').val()
+                };
+                
+                $.ajax({
+                    url: 'api/customer_register.php',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('Account created successfully! You can now login.', 'success');
+                            $('#loginTab').click();
+                            $('#loginEmail').val(formData.email);
+                        } else {
+                            showToast(response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        showToast('Registration failed. Please try again.', 'error');
+                    }
+                });
+            });
+        });
+
+        function showToast(message, type = 'success') {
+            const toast = $('#toast');
+            const toastMessage = $('#toastMessage');
+            
+            toastMessage.text(message);
+            
+            if (type === 'error') {
+                toast.find('div').removeClass('bg-green-500').addClass('bg-red-500');
+            } else {
+                toast.find('div').removeClass('bg-red-500').addClass('bg-green-500');
+            }
+            
+            toast.removeClass('translate-x-full');
+            
+            setTimeout(() => {
+                toast.addClass('translate-x-full');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
