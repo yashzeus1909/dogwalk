@@ -278,24 +278,24 @@ $(document).ready(function() {
         const total = serviceFee + appFee;
 
         const bookingData = {
-            walkerId: currentWalker.id,
-            dogName: $('#dogName').val(),
-            dogSize: $('#dogSize').val(),
-            date: $('#bookingDate').val(),
-            time: $('#bookingTime').val(),
+            walker_id: currentWalker.id,
+            dog_name: $('#dogName').val(),
+            dog_size: $('#dogSize').val(),
+            booking_date: $('#bookingDate').val(),
+            booking_time: $('#bookingTime').val(),
             duration: duration,
+            customer_name: $('#customerName').val(),
+            customer_email: $('#customerEmail').val(),
             phone: $('#phone').val(),
-            email: $('#bookingEmail').val(),
-            instructions: $('#instructions').val(),
-            serviceFee: serviceFee,
-            appFee: appFee,
-            total: total,
-            status: 'pending'
+            address: $('#customerAddress').val(),
+            special_notes: $('#instructions').val(),
+            total_price: (total / 100).toFixed(2)
         };
 
         // Validate required fields
-        if (!bookingData.dogName || !bookingData.dogSize || !bookingData.date || 
-            !bookingData.time || !bookingData.phone || !bookingData.email) {
+        if (!bookingData.dog_name || !bookingData.dog_size || !bookingData.booking_date || 
+            !bookingData.booking_time || !bookingData.customer_name || !bookingData.customer_email || 
+            !bookingData.phone || !bookingData.address) {
             showToast('Please fill in all required fields', 'error');
             return;
         }
@@ -304,14 +304,18 @@ $(document).ready(function() {
         $('#confirmBooking').prop('disabled', true).text('Booking...');
 
         $.ajax({
-            url: API_BASE + 'bookings.php',
+            url: API_BASE + 'add_booking.php',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(bookingData),
             success: function(response) {
-                closeBookingModal();
-                showToast('Booking request submitted successfully!', 'success');
-                loadBookings(); // Refresh bookings
+                if (response.success) {
+                    closeBookingModal();
+                    showToast('Booking request submitted successfully!', 'success');
+                    loadBookings(); // Refresh bookings
+                } else {
+                    showToast('Error: ' + response.message, 'error');
+                }
             },
             error: function() {
                 showToast('Failed to submit booking. Please try again.', 'error');
