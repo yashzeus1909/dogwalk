@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $pdo->beginTransaction();
     try {
         // Update user profile in database
-        $stmt = $pdo->prepare("UPDATE users SET first_name = ?, last_name = ?, phone = ?, address = ?, profile_image_url = ?, updated_at = NOW() WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE users SET first_name = ?, last_name = ?, phone = ?, address = ?, profile_image_url = ?, updated_at = datetime('now') WHERE id = ?");
         $result = $stmt->execute([$firstName, $lastName, $phone, $address, $profileImageUrl, $user_id]);
         
         if (!$result) {

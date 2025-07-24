@@ -15,12 +15,12 @@ try {
     $userId = $_SESSION['user_id'];
     
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Get user's bookings
+        // Get user's bookings - direct database query from unified users table
         $stmt = $db->prepare("
-            SELECT b.*, w.name as walker_name, w.image as walker_image, w.phone as walker_phone
+            SELECT b.*, u.first_name || ' ' || u.last_name as walker_name, u.image as walker_image, u.phone as walker_phone
             FROM bookings b 
-            JOIN walkers w ON b.walker_id = w.id 
-            WHERE b.user_id = ? 
+            JOIN users u ON b.walker_id = u.id AND u.role = 'walker'
+            WHERE b.customer_id = ? 
             ORDER BY b.created_at DESC
         ");
         $stmt->execute([$userId]);
@@ -58,7 +58,8 @@ try {
             }
         }
         
-        $stmt = $db->prepare("INSERT INTO bookings (user_id, walker_id, booking_date, booking_time, duration, total_price, special_instructions, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
+        // Direct database insert - use proper column names
+        $stmt = $db->prepare("INSERT INTO bookings (customer_id, walker_id, booking_date, booking_time, duration, total_price, special_notes, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', datetime('now'), datetime('now'))");
         
         $stmt->execute([
             $userId,

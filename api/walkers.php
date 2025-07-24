@@ -8,15 +8,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
+require_once 'config.php';
+
 try {
     $db = getDatabaseConnection();
+    
+    if (!$db) {
+        throw new Exception('Database connection failed');
+    }
     
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Fetch all walkers (users with role = 'walker')
         $stmt = $db->query("
             SELECT 
                 id,
-                CONCAT(first_name, ' ', last_name) as name,
+                (first_name || ' ' || last_name) as name,
                 email,
                 profile_image_url as image,
                 rating,
@@ -31,16 +37,16 @@ try {
                 insured,
                 certified
             FROM users 
-            WHERE role = 'walker' AND is_active = TRUE
+            WHERE role = 'walker' AND is_active = 1
             ORDER BY rating DESC, review_count DESC
         ");
         
         $walkers = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Convert text fields to arrays for frontend compatibility
+        // Convert JSON fields to arrays for frontend compatibility
         foreach ($walkers as &$walker) {
-            $walker['badges'] = $walker['badges'] ? explode(',', $walker['badges']) : [];
-            $walker['services'] = $walker['services'] ? explode(',', $walker['services']) : [];
+            $walker['badges'] = $walker['badges'] ? json_decode($walker['badges'], true) : [];
+            $walker['services'] = $walker['services'] ? json_decode($walker['services'], true) : [];
             $walker['rating'] = (float) $walker['rating'];
             $walker['price'] = (float) $walker['price'];
             $walker['background_check'] = (bool) $walker['background_check'];
@@ -102,7 +108,7 @@ try {
                     first_name, last_name, email, password, phone, address, role,
                     price_per_hour, description, services, availability,
                     created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, 'walker', ?, ?, ?, ?, NOW(), NOW())
+                ) VALUES (?, ?, ?, ?, ?, ?, 'walker', ?, ?, ?, ?, datetime('now'), datetime('now'))
             ");
             
             $result = $stmt->execute([

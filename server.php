@@ -1,36 +1,39 @@
 <?php
-// PawWalk PHP Server
-echo "Starting PawWalk PHP Server on port 5000...\n";
+// Simple PHP server script
+$request_uri = $_SERVER['REQUEST_URI'];
+$path = parse_url($request_uri, PHP_URL_PATH);
 
-// Set error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Test database connection
-$host = getenv('PGHOST');
-$port = getenv('PGPORT');
-$dbname = getenv('PGDATABASE');
-$user = getenv('PGUSER');
-$password = getenv('PGPASSWORD');
-
-if (!$host || !$port || !$dbname || !$user || !$password) {
-    echo "Database configuration not found\n";
-    echo "Required environment variables: PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD\n";
-    exit(1);
+// Route to index.html for root requests
+if ($path === '/') {
+    include 'index.html';
+    exit;
 }
 
-try {
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-    $pdo = new PDO($dsn, $user, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Database connection successful!\n";
-} catch (PDOException $e) {
-    echo "Database connection failed: " . $e->getMessage() . "\n";
-    exit(1);
+// Handle static files
+$file_path = __DIR__ . $path;
+if (file_exists($file_path) && !is_dir($file_path)) {
+    $extension = pathinfo($file_path, PATHINFO_EXTENSION);
+    
+    switch($extension) {
+        case 'css':
+            header('Content-Type: text/css');
+            break;
+        case 'js':
+            header('Content-Type: application/javascript');
+            break;
+        case 'html':
+            header('Content-Type: text/html');
+            break;
+        case 'php':
+            include $file_path;
+            exit;
+    }
+    
+    readfile($file_path);
+    exit;
 }
 
-// Start the server
-echo "Server starting at http://0.0.0.0:5000\n";
-$command = 'php -S 0.0.0.0:5000 start_php_server.php';
-exec($command);
+// If file not found, return 404
+http_response_code(404);
+echo "File not found";
 ?>

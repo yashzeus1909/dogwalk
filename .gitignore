@@ -1,6 +1,45 @@
-node_modules
-dist
+# Database files
+database/dog_walker_app.db*
+
+# PHP logs
+*.log
+php_server.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
 .DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node.js (if any)
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Uploads directory (if contains user uploads)
+uploads/*
+!uploads/.gitkeep
+
+# Cache directories
+cache/
+tmp/
+temp/

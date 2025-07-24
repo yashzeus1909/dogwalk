@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - PawWalk</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
+    <div class="form-container">
+        <h2><i class="fas fa-paw"></i> PawWalk Sign Up</h2>
+        
+        <!-- User Type Selection -->
+        <div class="user-type-selection">
+            <label class="radio-option">
+                <input type="radio" name="user_type" value="customer" checked>
+                <span class="radio-custom"></span>
+                <div class="radio-content">
+                    <i class="fas fa-user"></i>
+                    <strong>Pet Owner</strong>
+                    <p>Find trusted dog walkers</p>
+                </div>
+            </label>
+            <label class="radio-option">
+                <input type="radio" name="user_type" value="walker">
+                <span class="radio-custom"></span>
+                <div class="radio-content">
+                    <i class="fas fa-walking"></i>
+                    <strong>Dog Walker</strong>
+                    <p>Offer walking services</p>
+                </div>
+            </label>
+        </div>
+        
+        <div id="message"></div>
+        
+        <form id="registerForm">
+            <!-- Basic Information in Two Columns -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">First Name:</label>
+                    <input type="text" id="first_name" name="first_name" placeholder="Enter your first name" required>
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name:</label>
+                    <input type="text" id="last_name" name="last_name" placeholder="Enter your last name" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="At least 6 characters" required minlength="6">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address:</label>
+                    <textarea id="address" name="address" rows="2" placeholder="Your street address or service area (optional)"></textarea>
+                </div>
+            </div>
+            
+            <!-- Walker-specific fields (initially hidden) -->
+            <div id="walkerFields" style="display: none;">
+                <h3 style="color: #2c5282; margin: 1.5rem 0 1rem; font-size: 1.1rem;">Walker Information</h3>
+                
+                <!-- Rate and Experience in Two Columns -->
+                <div class="walker-info-grid">
+                    <div class="form-group">
+                        <label for="hourly_rate">Hourly Rate ($):</label>
+                        <input type="number" id="hourly_rate" name="hourly_rate" min="10" max="100" placeholder="25" title="Enter your hourly rate between $10-$100">
+                    </div>
+                    <div class="form-group">
+                        <label for="experience">Years of Experience:</label>
+                        <select id="experience" name="experience" title="Select your experience level">
+                            <option value="">Choose your experience level</option>
+                            <option value="0-1">Less than 1 year</option>
+                            <option value="1-3">1-3 years</option>
+                            <option value="3-5">3-5 years</option>
+                            <option value="5+">5+ years</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">About You:</label>
+                    <textarea id="description" name="description" rows="4" placeholder="Hi! I'm a passionate dog lover with [X] years of experience. I love taking dogs on adventures and ensuring their safety and happiness. What makes me special is... (Share your experience, personality, and what pet owners can expect from you)"></textarea>
+                </div>
+                
+                <!-- Services and Availability in Two Columns -->
+                <div class="walker-services-availability">
+                    <div class="form-group">
+                        <label for="services">Services Offered:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="services[]" value="walking">
+                                <span class="checkmark"></span>
+                                Dog Walking
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="services[]" value="feeding">
+                                <span class="checkmark"></span>
+                                Pet Feeding
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="services[]" value="overnight">
+                                <span class="checkmark"></span>
+                                Overnight Care
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="services[]" value="grooming">
+                                <span class="checkmark"></span>
+                                Basic Grooming
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="availability">Availability:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="availability[]" value="morning">
+                                <span class="checkmark"></span>
+                                Morning (6 AM - 12 PM)
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="availability[]" value="afternoon">
+                                <span class="checkmark"></span>
+                                Afternoon (12 PM - 6 PM)
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="availability[]" value="evening">
+                                <span class="checkmark"></span>
+                                Evening (6 PM - 10 PM)
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="availability[]" value="weekend">
+                                <span class="checkmark"></span>
+                                Weekends
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="certification-section">
+                    <h4 style="color: #2c5282; margin: 1rem 0 0.5rem;">Certifications & Insurance</h4>
+                    <div class="form-row-three">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="background_check" value="1">
+                            <span class="checkmark"></span>
+                            Background Check
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="insured" value="1">
+                            <span class="checkmark"></span>
+                            Pet Care Insurance
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="certified" value="1">
+                            <span class="checkmark"></span>
+                            Pet Care Certification
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="form-button">
+                <span id="submitText">Sign Up as Pet Owner</span>
+            </button>
+        </form>
+        
+        <div class="form-link">
+            <p>Already have an account? <a href="login.html">Login here</a></p>
+            <p><a href="index.html">Back to Home</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Handle user type selection
+            $('input[name="user_type"]').change(function() {
+                const userType = $(this).val();
+                if (userType === 'walker') {
+                    $('#walkerFields').slideDown();
+                    $('#submitText').text('Sign Up as Dog Walker');
+                    // Make walker fields required
+                    $('#hourly_rate, #experience, #description').prop('required', true);
+                } else {
+                    $('#walkerFields').slideUp();
+                    $('#submitText').text('Sign Up as Pet Owner');
+                    // Remove required from walker fields
+                    $('#hourly_rate, #experience, #description').prop('required', false);
+                }
+            });
+            
+            // Form submission
+            $('#registerForm').submit(function(e) {
+                e.preventDefault();
+                
+                // Get selected user type
+                const userType = $('input[name="user_type"]:checked').val();
+                
+                // Validate walker-specific fields if walker selected
+                if (userType === 'walker') {
+                    if (!$('#hourly_rate').val() || !$('#experience').val() || !$('#description').val()) {
+                        $('#message').html('<div class="alert alert-error">Please fill in all walker information fields.</div>');
+                        return;
+                    }
+                    
+                    // Check if at least one service is selected
+                    if (!$('input[name="services[]"]:checked').length) {
+                        $('#message').html('<div class="alert alert-error">Please select at least one service you offer.</div>');
+                        return;
+                    }
+                    
+                    // Check if at least one availability is selected
+                    if (!$('input[name="availability[]"]:checked').length) {
+                        $('#message').html('<div class="alert alert-error">Please select your availability.</div>');
+                        return;
+                    }
+                }
+                
+                // Serialize form data including user type
+                let formData = $(this).serialize() + '&user_type=' + userType;
+                
+                $.ajax({
+                    url: 'api/register.php',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            const userTypeText = userType === 'walker' ? 'walker' : 'pet owner';
+                            $('#message').html('<div class="alert alert-success">Registration as ' + userTypeText + ' successful! Redirecting to login...</div>');
+                            setTimeout(function() {
+                                window.location.href = 'login.html';
+                            }, 2000);
+                        } else {
+                            $('#message').html('<div class="alert alert-error">' + response.message + '</div>');
+                        }
+                    },
+                    error: function() {
+                        $('#message').html('<div class="alert alert-error">Registration failed. Please try again.</div>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

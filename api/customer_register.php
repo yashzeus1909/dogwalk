@@ -55,7 +55,7 @@ try {
     // Insert new user with transaction for data integrity
     $db->beginTransaction();
     try {
-        $stmt = $db->prepare("INSERT INTO users (first_name, last_name, email, password, phone, address, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
+        $stmt = $db->prepare("INSERT INTO users (first_name, last_name, email, password, phone, address, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))");
         $result = $stmt->execute([$firstName, $lastName, $email, $hashedPassword, $phone, $address, $role]);
         
         if (!$result) {

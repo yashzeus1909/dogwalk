@@ -1,224 +1,166 @@
-# PawWalk - Dog Walker Booking Platform
+# PawWalk - Dog Walker Booking Application
 
-A complete mobile-friendly dog walker booking platform built with HTML, CSS, jQuery, and PHP with PostgreSQL database integration.
+A professional dog walking service platform that connects dog owners with trusted, vetted dog walkers in their neighborhood.
 
-## Features
+## 🐕 Features
 
-- Browse available dog walkers with ratings and reviews
-- Search walkers by location and service type
-- Book walking sessions with real-time pricing calculations
-- Manage bookings and view booking history
-- User profile management with personal information
-- Responsive design optimized for mobile devices
-- RESTful PHP API backend with PostgreSQL database
-- Complete database schema with sample data
-- User authentication and session management
+- **Browse Professional Walkers**: View profiles, ratings, and availability of certified dog walkers
+- **Easy Booking System**: Simple booking process with instant confirmations
+- **Real-time Updates**: Live availability and booking status updates
+- **Secure Authentication**: User registration and login system
+- **Responsive Design**: Works perfectly on desktop and mobile devices
+- **Database Persistence**: All data stored securely in SQLite database
 
-## Technology Stack
+## 🚀 Quick Start
 
-- **Frontend**: HTML5, CSS3 (Tailwind CSS), jQuery 3.6.0
-- **Backend**: PHP 7.4+, PostgreSQL 13+
-- **Database**: PostgreSQL with prepared statements and transactions
-- **Icons**: Font Awesome 6.0
-- **Images**: Unsplash API for walker photos
-- **Architecture**: RESTful API with MVC pattern
+### Prerequisites
+- PHP 8.2 or higher
+- SQLite3 support (included in most PHP installations)
 
-## Prerequisites
+### Installation
 
-- PHP 8.0 or higher with PDO MySQL extension
-- MySQL 8.0 or higher
-- Web server (Apache/Nginx), PHP built-in server, or XAMPP
-- Modern web browser
-
-## For XAMPP Users
-
-If you're using XAMPP for local development, see the complete [XAMPP Setup Guide](XAMPP_SETUP_GUIDE.md) for detailed installation instructions specific to your environment.
-
-## Quick Setup
-
-### Option 1: XAMPP (Recommended for Local Development)
-
-1. **Setup Project in XAMPP**:
+1. **Clone the repository**
    ```bash
-   # Place files in: C:\xampp\htdocs\dogWalk\
-   cp .env.example .env
-   # No changes needed - .env is pre-configured for XAMPP
+   git clone https://github.com/yourusername/pawwalk-dog-walker.git
+   cd pawwalk-dog-walker
    ```
 
-2. **Start XAMPP Services**:
-   - Open XAMPP Control Panel
-   - Start Apache and MySQL services
-
-3. **Initialize Database**:
+2. **Set up the database**
    ```bash
-   php scripts/setup_xampp_database.php
+   php setup_database.php
    ```
 
-4. **Access Application**:
-   - Open: http://localhost/dogWalk/
-
-### Option 2: Using Existing MySQL Database
-
-1. **Download and extract all project files**
-2. **Configure environment**:
+3. **Start the application**
    ```bash
-   cp .env.example .env
-   # Edit .env file with your database credentials
-   ```
-   Update `.env` with your MySQL connection details:
-   ```
-   DATABASE_URL=mysql://your_user:your_password@localhost:3306/your_database
-   ```
-3. **Initialize the database**:
-   ```bash
-   php scripts/setup_mysql_database.php
-   ```
-4. **Start the server**:
-   ```bash
-   php -S localhost:8000 server.php
-   ```
-5. **Open browser**: Navigate to `http://localhost:8000`
-
-### Option 2: Fresh MySQL Installation
-
-1. **Install MySQL**:
-   ```bash
-   # Ubuntu/Debian
-   sudo apt update && sudo apt install mysql-server php-mysql
-   sudo mysql_secure_installation
-   
-   # macOS with Homebrew
-   brew install mysql php
-   brew services start mysql
-   
-   # Windows: Download from https://dev.mysql.com/downloads/mysql/
+   php -S localhost:5000 server.php
    ```
 
-2. **Create database and user**:
-   ```bash
-   sudo mysql
-   CREATE DATABASE pawwalk_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   CREATE USER 'pawwalk_user'@'localhost' IDENTIFIED BY 'secure_password';
-   GRANT ALL PRIVILEGES ON pawwalk_db.* TO 'pawwalk_user'@'localhost';
-   FLUSH PRIVILEGES;
-   EXIT;
-   ```
+4. **Open your browser**
+   Navigate to `http://localhost:5000`
 
-3. **Configure environment**:
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and update the DATABASE_URL:
-   ```
-   DATABASE_URL=mysql://pawwalk_user:secure_password@localhost:3306/pawwalk_db
-   ```
-
-4. **Initialize database with sample data**:
-   ```bash
-   php scripts/setup_mysql_database.php
-   ```
-
-5. **Start the application**:
-   ```bash
-   php -S localhost:8000 server.php
-   ```
-
-## Project Structure
+## 🏗️ Project Structure
 
 ```
-├── index.html              # Main application file
-├── js/
-│   └── app.js              # jQuery application logic
-├── api/
-│   ├── walkers.php         # Walker API endpoints
-│   └── bookings.php        # Booking API endpoints
-├── models/
-│   ├── Walker.php          # Walker data model
-│   └── Booking.php         # Booking data model
+pawwalk-dog-walker/
+├── index.html              # Main application interface
+├── server.php              # PHP server router
+├── setup_database.php      # Database initialization
+├── api/                    # REST API endpoints
+│   ├── walkers.php         # Walker management
+│   ├── bookings.php        # Booking operations
+│   ├── config.php          # API configuration
+│   └── ...
 ├── config/
-│   └── database.php        # Database configuration
+│   └── database.php        # Database connection
 ├── database/
-│   └── schema.sql          # Database schema and sample data
-└── README.md               # This file
+│   ├── sqlite_schema.sql   # Database schema
+│   └── dog_walker_app.db   # SQLite database file
+├── css/
+│   └── style.css           # Application styles
+├── js/
+│   └── app.js              # Frontend JavaScript
+└── README.md
 ```
 
-## API Endpoints
+## 💾 Database Schema
 
-### Walkers
-- `GET /api/walkers.php` - Get all walkers
-- `GET /api/walkers.php?search=1&location=<location>` - Search walkers
-- `POST /api/walkers.php` - Create new walker
+The application uses a simple SQLite database with two main tables:
 
-### Bookings
-- `GET /api/bookings.php` - Get all bookings
-- `GET /api/bookings.php?user_email=<email>` - Get user bookings
-- `POST /api/bookings.php` - Create new booking
-- `PUT /api/bookings.php` - Update booking status
+### Users Table
+- Unified table for customers and walkers
+- Walker-specific fields: rating, price, services, badges
+- Customer fields: basic profile information
 
-## Technologies Used
+### Bookings Table
+- Appointment records with full booking details
+- Links walkers and customers via foreign keys
+- Tracks booking status and payment information
 
-- **Frontend**: HTML5, CSS3 (Tailwind CSS), jQuery 3.6.0
-- **Backend**: PHP 7.4+, MySQL
-- **Icons**: Font Awesome 6.0
-- **Images**: Unsplash API for walker photos
-- **Architecture**: RESTful API with MVC pattern
+## 🔧 API Endpoints
 
-## Features in Detail
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/walkers.php` | GET | Fetch all available walkers |
+| `/api/bookings.php` | GET/POST | Manage bookings |
+| `/api/login.php` | POST | User authentication |
+| `/api/register.php` | POST | User registration |
 
-### Walker Listings
-- Display walker profiles with photos, ratings, and descriptions
-- Show distance, pricing, and availability
-- Badge system for certifications and background checks
-- Responsive grid layout for different screen sizes
+## 🛠️ Technology Stack
+
+- **Frontend**: HTML5, CSS3, JavaScript (jQuery)
+- **Backend**: PHP 8.2+
+- **Database**: SQLite3
+- **Server**: Built-in PHP development server
+- **Architecture**: Traditional LAMP-style stack
+
+## 🎨 Features in Detail
+
+### Walker Profiles
+- Professional photos and detailed descriptions
+- Rating system with review counts
+- Service badges (Certified, Insured, Pet First Aid)
+- Hourly pricing and availability schedules
 
 ### Booking System
-- Multi-step booking form with validation
-- Real-time pricing calculation
-- Date/time selection with constraints
+- Select dog size and walk duration
 - Special instructions and contact information
-- Email confirmation system
+- Real-time price calculations
+- Booking confirmation system
 
-### User Profile
-- Personal information management
-- Booking history with status tracking
-- Settings and preferences
-- Emergency contact information
+### Responsive Design
+- Mobile-first CSS design
+- Flexible grid layouts
+- Touch-friendly interfaces
+- Cross-browser compatibility
 
-### Mobile Experience
-- Bottom navigation for easy mobile access
-- Touch-friendly interface elements
-- Responsive design adapts to all screen sizes
-- Fast loading with optimized images
+## 🚀 Deployment
 
-## Sample Data
+### Local Development
+```bash
+php -S localhost:5000 server.php
+```
 
-The application comes with pre-populated sample data:
+### Production Deployment
+1. Upload files to web server
+2. Ensure PHP 8.2+ with SQLite support
+3. Run database setup: `php setup_database.php`
+4. Configure web server to serve from project root
 
-- 3 dog walkers with different specialties
-- 1 sample booking for demonstration
-- 1 user profile for testing
+## 📝 Sample Data
 
-## Development Notes
+The application comes with sample data including:
+- 3 professional dog walkers with real profiles
+- 2 sample customers
+- 3 sample bookings with different statuses
 
-- All API responses are in JSON format
-- CORS headers are included for cross-origin requests
-- Input sanitization and validation on both client and server
-- Prepared statements used to prevent SQL injection
-- Error handling with user-friendly messages
+## 🔒 Security Features
 
-## Browser Support
+- Password hashing with PHP's `password_hash()`
+- SQL injection prevention with PDO prepared statements
+- Input validation and sanitization
+- Session-based authentication
+- CORS headers for API security
 
-- Chrome 80+
-- Firefox 75+
-- Safari 13+
-- Edge 80+
-- Mobile browsers (iOS Safari, Chrome Mobile)
+## 🤝 Contributing
 
-## Security Features
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-- SQL injection protection with prepared statements
-- Input sanitization and validation
-- CORS configuration for API security
-- Password hashing for user accounts
+## 📄 License
 
-For production deployment, additional security measures should be implemented including HTTPS, input rate limiting, and authentication tokens.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🐾 About PawWalk
+
+PawWalk was created to make it easy for dog owners to find reliable, professional dog walking services. Our platform ensures all walkers are background-checked and insured, giving pet owners peace of mind.
+
+## 📞 Support
+
+For support, email support@pawwalk.com or create an issue in this repository.
+
+---
+
+Made with ❤️ for dogs and their humans

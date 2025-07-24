@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - PawWalk</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-paw"></i>
+                <span>PawWalk</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Find Walkers</a>
+                <a href="#bookings" class="nav-link">My Bookings</a>
+                <a href="#" id="logoutBtn" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px; padding: 2rem;">
+        <h1>My Dashboard</h1>
+        <p>Welcome back! Here are your recent bookings:</p>
+        
+        <div id="bookingsContainer">
+            <!-- Bookings will be loaded here -->
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Check authentication
+            $.ajax({
+                url: 'api/check_auth.php',
+                success: function(response) {
+                    if (!response.authenticated) {
+                        window.location.href = 'login.html';
+                    } else {
+                        loadBookings();
+                    }
+                }
+            });
+            
+            $('#logoutBtn').click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: 'api/logout.php',
+                    success: function() {
+                        window.location.href = 'index.html';
+                    }
+                });
+            });
+        });
+        
+        function loadBookings() {
+            $.ajax({
+                url: 'api/get_bookings.php',
+                success: function(response) {
+                    if (response.success) {
+                        displayBookings(response.bookings);
+                    }
+                }
+            });
+        }
+        
+        function displayBookings(bookings) {
+            const container = $('#bookingsContainer');
+            if (bookings.length === 0) {
+                container.html('<p>No bookings found. <a href="index.html">Book a walker now!</a></p>');
+                return;
+            }
+            
+            let html = '<div class="bookings-grid">';
+            bookings.forEach(booking => {
+                html += `
+                    <div class="booking-card">
+                        <h3>Walk with ${booking.walker_name}</h3>
+                        <p><strong>Dog:</strong> ${booking.dog_name} (${booking.dog_size})</p>
+                        <p><strong>Date:</strong> ${booking.booking_date}</p>
+                        <p><strong>Time:</strong> ${booking.booking_time}</p>
+                        <p><strong>Duration:</strong> ${booking.duration} minutes</p>
+                        <p><strong>Status:</strong> <span class="status-${booking.status}">${booking.status}</span></p>
+                        <p><strong>Total:</strong> $${booking.total_price}</p>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.html(html);
+        }
+    </script>
+    
+    <style>
+        .bookings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .booking-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .status-pending { color: orange; }
+        .status-confirmed { color: green; }
+        .status-completed { color: blue; }
+        .status-cancelled { color: red; }
+    </style>
+</body>
+</html>
