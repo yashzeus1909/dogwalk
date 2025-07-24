@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawWalk - Navigation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-paw text-blue-500"></i> PawWalk
+                </h1>
+                <p class="text-xl text-gray-600 mb-8">Professional Dog Walking Services</p>
+            </div>
+
+            <!-- Navigation Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Login/Register -->
+                <a href="/common_login.html" class="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="text-center">
+                        <i class="fas fa-sign-in-alt text-4xl text-blue-500 mb-4"></i>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Login / Register</h2>
+                        <p class="text-gray-600 text-sm">Sign in or create your account</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs mr-2">Customer</span>
+                            <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs">Walker</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Customer Dashboard -->
+                <a href="/customer_profile.html" class="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="text-center">
+                        <i class="fas fa-user text-4xl text-blue-500 mb-4"></i>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Customer Dashboard</h2>
+                        <p class="text-gray-600 text-sm">Find and book dog walkers</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs">Requires Login</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Walker Dashboard -->
+                <a href="/walker_profile.html" class="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="text-center">
+                        <i class="fas fa-dog text-4xl text-green-500 mb-4"></i>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Walker Dashboard</h2>
+                        <p class="text-gray-600 text-sm">Manage your walking services</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs">Requires Login</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Browse Walkers -->
+                <a href="/index.html" class="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="text-center">
+                        <i class="fas fa-search text-4xl text-purple-500 mb-4"></i>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Browse Walkers</h2>
+                        <p class="text-gray-600 text-sm">Find available dog walkers</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs">Public Access</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Database Test -->
+                <a href="/test_database_dashboard.html" class="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="text-center">
+                        <i class="fas fa-database text-4xl text-gray-500 mb-4"></i>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Database Test</h2>
+                        <p class="text-gray-600 text-sm">Test database functionality</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs">Development</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Role Test -->
+                <a href="/role_test_dashboard.html" class="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="text-center">
+                        <i class="fas fa-users text-4xl text-orange-500 mb-4"></i>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Role System Test</h2>
+                        <p class="text-gray-600 text-sm">Test role-based authentication</p>
+                        <div class="mt-4">
+                            <span class="inline-block bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs">Development</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- System Status -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>System Status
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <i class="fas fa-database text-green-500 text-2xl mb-2"></i>
+                        <h3 class="font-medium text-green-800">Database</h3>
+                        <p class="text-sm text-green-600">PostgreSQL Online</p>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <i class="fas fa-shield-alt text-blue-500 text-2xl mb-2"></i>
+                        <h3 class="font-medium text-blue-800">Authentication</h3>
+                        <p class="text-sm text-blue-600">Role-Based Security</p>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <i class="fas fa-users text-purple-500 text-2xl mb-2"></i>
+                        <h3 class="font-medium text-purple-800">User Roles</h3>
+                        <p class="text-sm text-purple-600">Customer/Walker/Admin</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-8 text-gray-500">
+                <p class="text-sm">
+                    <i class="fas fa-shield-alt mr-1"></i>
+                    Secure authentication with bcrypt encryption and session management
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,18 +1,21 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
+// Use Replit PostgreSQL database since XAMPP MySQL is not available
+require_once 'config.php';
+error_log("REGISTRATION: Using MySQL database (dog_walker_app) for data storage");
 
-require_once '../config/database.php';
+setJsonHeaders();
+startSession();
 
 try {
-    $input = json_decode(file_get_contents('php://input'), true);
+    // Get JSON input from request body
+    $input = getJsonInput();
     
-    if (!$input || !isset($input['firstName']) || !isset($input['lastName']) || 
-        !isset($input['email']) || !isset($input['password']) || !isset($input['phone'])) {
-        echo json_encode(['success' => false, 'message' => 'All fields are required']);
-        exit;
+    $requiredFields = ['firstName', 'lastName', 'email', 'password', 'phone', 'address'];
+    foreach ($requiredFields as $field) {
+        if (!isset($input[$field]) || empty(trim($input[$field]))) {
+            echo json_encode(['success' => false, 'message' => ucfirst($field) . ' is required']);
+            exit;
+        }
     }
     
     $firstName = trim($input['firstName']);
@@ -20,46 +23,99 @@ try {
     $email = trim($input['email']);
     $password = $input['password'];
     $phone = trim($input['phone']);
-    $address = trim($input['address'] ?? '');
+    $address = trim($input['address']);
+    $role = trim($input['role'] ?? 'customer');
     
-    if (empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($phone)) {
-        echo json_encode(['success' => false, 'message' => 'All fields are required']);
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid email format']);
         exit;
     }
     
+    // Validate password length
     if (strlen($password) < 6) {
         echo json_encode(['success' => false, 'message' => 'Password must be at least 6 characters long']);
         exit;
     }
     
-    $database = new Database();
-    $db = $database->getConnection();
+    // Connect to database
+    $db = getDatabaseConnection();
     
-    // Check if email already exists
+    // Check if user already exists
     $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
-        echo json_encode(['success' => false, 'message' => 'Email address already exists']);
+        echo json_encode(['success' => false, 'message' => 'Email already registered']);
         exit;
     }
     
-    // Create user account
+    // Hash password
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     
-    $stmt = $db->prepare("INSERT INTO users (first_name, last_name, email, phone, address, password) VALUES (?, ?, ?, ?, ?, ?)");
-    $result = $stmt->execute([$firstName, $lastName, $email, $phone, $address, $hashedPassword]);
-    
-    if ($result) {
+    // Insert new user with transaction for data integrity
+    $db->beginTransaction();
+    try {
+        $stmt = $db->prepare("INSERT INTO users (first_name, last_name, email, password, phone, address, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
+        $result = $stmt->execute([$firstName, $lastName, $email, $hashedPassword, $phone, $address, $role]);
+        
+        if (!$result) {
+            throw new Exception("Failed to insert user data into database");
+        }
+        
+        // Get the new user ID
+        $userId = $db->lastInsertId();
+        
+        // Verify the user was actually inserted
+        $stmt = $db->prepare("SELECT id, first_name, last_name, email, role FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $newUser = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$newUser) {
+            throw new Exception("User registration verification failed");
+        }
+        
+        // Commit the transaction
+        $db->commit();
+        
+        // Log successful registration
+        error_log("User registered successfully - ID: $userId, Email: $email, Role: $role");
+        
+        // Set session for immediate login
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['user_email'] = $email;
+        $_SESSION['user_name'] = $firstName . ' ' . $lastName;
+        $_SESSION['user_role'] = $role;
+        $_SESSION['logged_in'] = true;
+        
+        // Return success response with user data
         echo json_encode([
             'success' => true,
-            'message' => 'Account created successfully',
-            'user_id' => $db->lastInsertId()
+            'message' => 'Registration successful! You are now logged in.',
+            'user' => [
+                'id' => $userId,
+                'name' => $firstName . ' ' . $lastName,
+                'email' => $email,
+                'role' => $role
+            ],
+            'redirect' => $role === 'admin' ? '/admin_dashboard.php' : 
+                         ($role === 'walker' ? '/walker_dashboard.php' : '/customer_profile.html')
         ]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to create account']);
+        
+    } catch (Exception $e) {
+        // Rollback transaction on any error
+        $db->rollback();
+        error_log("Registration transaction failed: " . $e->getMessage());
+        echo json_encode([
+            'success' => false,
+            'message' => 'Database transaction failed: ' . $e->getMessage()
+        ]);
     }
     
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Registration failed: ' . $e->getMessage()]);
+    error_log("Registration error: " . $e->getMessage());
+    echo json_encode([
+        'success' => false,
+        'message' => 'Registration failed: ' . $e->getMessage()
+    ]);
 }
 ?>

@@ -67,7 +67,7 @@
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                            <label for="firstName" class="block text-sm font-medium text-gray-700">First Names</label>
                             <input id="firstName" name="firstName" type="text" required 
                                    class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
                                    placeholder="First Name">
@@ -154,6 +154,13 @@
                 const email = $('#loginEmail').val();
                 const password = $('#loginPassword').val();
                 
+                console.log('Login attempt with:', { email, password });
+                
+                if (!email || !password) {
+                    showToast('Please enter both email and password', 'error');
+                    return;
+                }
+                
                 $.ajax({
                     url: 'api/customer_login.php',
                     method: 'POST',
@@ -163,7 +170,12 @@
                         password: password
                     }),
                     dataType: 'json',
+                    beforeSend: function(xhr) {
+                        console.log('Sending request to:', '/api/customer_login.php');
+                        console.log('Request data:', JSON.stringify({email: email, password: password}));
+                    },
                     success: function(response) {
+                        console.log('Login response:', response);
                         if (response.success) {
                             showToast('Login successful! Redirecting...', 'success');
                             setTimeout(() => {
@@ -173,7 +185,13 @@
                             showToast(response.message, 'error');
                         }
                     },
-                    error: function() {
+                    error: function(xhr, status, error) {
+                        console.error('Login error details:', {
+                            status: status,
+                            error: error,
+                            responseText: xhr.responseText,
+                            statusCode: xhr.status
+                        });
                         showToast('Login failed. Please try again.', 'error');
                     }
                 });

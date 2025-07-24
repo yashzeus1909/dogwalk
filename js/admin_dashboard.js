@@ -1,4 +1,6 @@
+const API_BASE = '/dogWalk/api/';
 $(document).ready(function() {
+
     // Load bookings on page load
     loadBookings();
     
@@ -12,7 +14,7 @@ function loadBookings() {
     const statusFilter = $('#statusFilter').val();
     
     $.ajax({
-        url: 'api/get_walker_bookings.php',
+        url: API_BASE+'get_walker_bookings.php',
         method: 'GET',
         data: { status: statusFilter },
         dataType: 'json',
@@ -162,7 +164,7 @@ function bindBookingEvents() {
 
 function updateBookingStatus(bookingId, newStatus) {
     $.ajax({
-        url: 'api/update_booking_status.php',
+        url: API_BASE+'update_booking_status.php',
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({
@@ -203,7 +205,7 @@ function formatDate(dateString) {
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         $.ajax({
-            url: 'api/admin_logout.php',
+            url: API_BASE+'admin_logout.php',
             method: 'POST',
             success: function() {
                 window.location.href = 'admin_login.php';

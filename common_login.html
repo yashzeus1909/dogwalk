@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawWalk - Login & Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-md mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <a href="/navigation_links.html" class="inline-block hover:opacity-80">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-paw text-blue-500"></i> PawWalk
+                    </h1>
+                </a>
+                <p class="text-gray-600">Connect with trusted dog walkers</p>
+            </div>
+
+            <!-- Auth Container -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <!-- Tab Buttons -->
+                <div class="flex mb-6 bg-gray-100 rounded-lg p-1">
+                    <button id="loginTab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-white text-blue-600 shadow-sm">
+                        Login
+                    </button>
+                    <button id="registerTab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-500 hover:text-gray-700">
+                        Register
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="auth-form">
+                    <form id="loginFormElement" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="loginEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" id="loginPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div id="registerForm" class="auth-form hidden">
+                    <form id="registerFormElement" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                <input type="text" id="registerFirstName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                <input type="text" id="registerLastName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="registerEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" id="registerPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required minlength="6">
+                            <p class="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                            <input type="tel" id="registerPhone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            <input type="text" id="registerAddress" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+                            <select id="registerRole" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="customer">Customer (Find Dog Walkers)</option>
+                                <option value="walker">Walker (Provide Walking Services)</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors">
+                            <i class="fas fa-user-plus mr-2"></i>Create Account
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Message Area -->
+                <div id="messageArea" class="mt-4 hidden">
+                    <div id="messageContent" class="p-3 rounded-md text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-6 text-sm text-gray-500">
+                <p>Secure authentication with role-based access</p>
+                <div class="mt-4 space-x-4">
+                    <a href="/navigation_links.html" class="text-blue-500 hover:text-blue-700">
+                        <i class="fas fa-home mr-1"></i>All Pages
+                    </a>
+                    <a href="/index.html" class="text-purple-500 hover:text-purple-700">
+                        <i class="fas fa-search mr-1"></i>Browse Walkers
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        $('#loginTab').click(function() {
+            $(this).addClass('bg-white text-blue-600 shadow-sm').removeClass('text-gray-500');
+            $('#registerTab').removeClass('bg-white text-blue-600 shadow-sm').addClass('text-gray-500');
+            $('#loginForm').removeClass('hidden');
+            $('#registerForm').addClass('hidden');
+            clearMessage();
+        });
+
+        $('#registerTab').click(function() {
+            $(this).addClass('bg-white text-blue-600 shadow-sm').removeClass('text-gray-500');
+            $('#loginTab').removeClass('bg-white text-blue-600 shadow-sm').addClass('text-gray-500');
+            $('#registerForm').removeClass('hidden');
+            $('#loginForm').addClass('hidden');
+            clearMessage();
+        });
+
+        // Show message function
+        function showMessage(message, type = 'success') {
+            const messageArea = $('#messageArea');
+            const messageContent = $('#messageContent');
+            
+            messageContent.removeClass('bg-green-100 border-green-400 text-green-700 bg-red-100 border-red-400 text-red-700 bg-blue-100 border-blue-400 text-blue-700');
+            
+            if (type === 'success') {
+                messageContent.addClass('bg-green-100 border border-green-400 text-green-700');
+            } else if (type === 'error') {
+                messageContent.addClass('bg-red-100 border border-red-400 text-red-700');
+            } else {
+                messageContent.addClass('bg-blue-100 border border-blue-400 text-blue-700');
+            }
+            
+            messageContent.html(message);
+            messageArea.removeClass('hidden');
+        }
+
+        function clearMessage() {
+            $('#messageArea').addClass('hidden');
+        }
+
+        // Login form handler
+        $('#loginFormElement').on('submit', function(e) {
+            e.preventDefault();
+            
+            const loginData = {
+                email: $('#loginEmail').val(),
+                password: $('#loginPassword').val()
+            };
+
+            $.ajax({
+                url: 'api/customer_login.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(loginData),
+                success: function(response) {
+                    showMessage(`Welcome back, ${response.user.name}! Redirecting to your ${response.user.role} dashboard...`, 'success');
+                    
+                    setTimeout(() => {
+                        // Redirect based on role
+                        if (response.user.role === 'walker') {
+                            window.location.href = '/walker_profile.html';
+                        } else if (response.user.role === 'admin') {
+                            window.location.href = '/admin_dashboard.php';
+                        } else {
+                            window.location.href = '/customer_profile.html';
+                        }
+                    }, 1500);
+                },
+                error: function(xhr) {
+                    const error = JSON.parse(xhr.responseText);
+                    showMessage(`<i class="fas fa-exclamation-triangle mr-2"></i>${error.message}`, 'error');
+                }
+            });
+        });
+
+        // Register form handler
+        $('#registerFormElement').on('submit', function(e) {
+            e.preventDefault();
+            
+            const registerData = {
+                firstName: $('#registerFirstName').val(),
+                lastName: $('#registerLastName').val(),
+                email: $('#registerEmail').val(),
+                password: $('#registerPassword').val(),
+                phone: $('#registerPhone').val(),
+                address: $('#registerAddress').val(),
+                role: $('#registerRole').val()
+            };
+
+            $.ajax({
+                url: 'api/customer_register.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(registerData),
+                success: function(response) {
+                    showMessage(`<i class="fas fa-check mr-2"></i>Account created successfully! Please login with your credentials.`, 'success');
+                    $('#registerFormElement')[0].reset();
+                    
+                    // Switch to login tab after successful registration
+                    setTimeout(() => {
+                        $('#loginTab').click();
+                        $('#loginEmail').val(registerData.email);
+                    }, 2000);
+                },
+                error: function(xhr) {
+                    const error = JSON.parse(xhr.responseText);
+                    showMessage(`<i class="fas fa-exclamation-triangle mr-2"></i>${error.message}`, 'error');
+                }
+            });
+        });
+
+        // Check if user is already logged in
+        $(document).ready(function() {
+            $.get('api/check_customer_auth.php')
+                .done(function(response) {
+                    if (response.success && response.user) {
+                        showMessage(`You are already logged in as ${response.user.name}. Redirecting...`, 'info');
+                        setTimeout(() => {
+                            if (response.user.role === 'walker') {
+                                window.location.href = '/walker_profile.html';
+                            } else if (response.user.role === 'admin') {
+                                window.location.href = '/admin_dashboard.php';
+                            } else {
+                                window.location.href = '/customer_profile.html';
+                            }
+                        }, 1500);
+                    }
+                })
+                .fail(function() {
+                    // User not logged in, show login form
+                });
+        });
+    </script>
+</body>
+</html>

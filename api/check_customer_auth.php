@@ -1,8 +1,13 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+// Use MySQL database for authentication checks
+require_once 'config.php';
+error_log("AUTH CHECK: Using MySQL database (dog_walker_app)");
 
-if (isset($_SESSION['user_id']) && isset($_SESSION['is_customer'])) {
+setJsonHeaders();
+startSession();
+
+// Check if user is logged in
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && isset($_SESSION['user_id'])) {
     echo json_encode([
         'success' => true,
         'authenticated' => true,

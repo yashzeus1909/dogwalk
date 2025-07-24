@@ -1,4 +1,5 @@
 // Global variables
+const API_BASE = '/dogWalk/api/';
 let walkers = [];
 let bookings = [];
 let currentWalker = null;
@@ -7,6 +8,7 @@ let currentWalker = null;
 
 $(document).ready(function () {
     // Initialize the app
+    checkAuthentication();
     loadWalkers();
     loadBookings();
     loadProfileData();
@@ -88,50 +90,68 @@ $(document).ready(function () {
     }
 
     function loadWalkers() {
+        console.log('Loading walkers...');
         $("#loadingState").addClass("show");
 
         $.ajax({
-            url: '/api/walkers',
+            url: API_BASE+'walkers.php',
             method: 'GET',
             dataType: 'json',
             success: function(data) {
+                console.log('Walkers loaded successfully:', data);
                 walkers = data;
                 displayWalkers(walkers);
                 $('#loadingState').removeClass('show');
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error('Failed to load walkers:', error, xhr.responseText);
                 $('#loadingState').removeClass('show');
-                showToast('Failed to load walkers', 'error');
+                $('#walkersGrid').html(`
+                    <div class="col-span-full text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                        <p class="text-red-600">Failed to load walkers. Please refresh the page.</p>
+                    </div>
+                `);
             }
         });
     }
 
     function displayWalkers(walkersToShow) {
+        console.log('Displaying walkers:', walkersToShow);
         const grid = $("#walkersGrid");
         grid.empty();
 
-        if (walkersToShow.length === 0) {
+        if (!walkersToShow || walkersToShow.length === 0) {
             $("#emptyState").removeClass("hidden");
             return;
         }
 
         $("#emptyState").addClass("hidden");
         walkersToShow.forEach((walker) => {
-            const walkerCard = createWalkerCard(walker);
-            grid.append(walkerCard);
+            try {
+                const walkerCard = createWalkerCard(walker);
+                grid.append(walkerCard);
+            } catch (error) {
+                console.error('Error creating walker card:', error, walker);
+            }
         });
 
         bindWalkerEvents();
     }
 
     function createWalkerCard(walker) {
-        const rating = (walker.rating / 10).toFixed(1);
-        const badges = walker.badges
+        if (!walker) {
+            console.error('Walker data is null or undefined');
+            return '<div>Error loading walker</div>';
+        }
+        
+        const rating = walker.rating ? walker.rating.toFixed(1) : '0.0';
+        const badges = walker.badges ? walker.badges
             .map(
                 (badge) =>
                     `<span class="badge bg-blue-100 text-blue-800">${badge}</span>`,
             )
-            .join(" ");
+            .join(" ") : '';
 
         return `
             <div class="walker-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -266,7 +286,7 @@ $(document).ready(function () {
         $("#confirmBooking").prop("disabled", true).text("Booking...");
 
         $.ajax({
-            url: '/api/bookings',
+            url: API_BASE+'bookings',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(bookingData),
@@ -294,12 +314,33 @@ $(document).ready(function () {
         );
 
         $.ajax({
-            url: '/api/bookings',
+            url: API_BASE+'customer_bookings.php',
             method: 'GET',
             dataType: 'json',
-            success: function(data) {
-                bookings = data;
-                displayBookings(bookings, container);
+            success: function(response) {
+                if (response.success) {
+                    bookings = response.bookings;
+                    displayBookings(bookings, container);
+                } else {
+                    if (response.message === 'Not authenticated') {
+                        container.html(`
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-user-slash text-4xl mb-4"></i>
+                                <p>Please log in to view your bookings</p>
+                                <a href="customer_login.php" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-block">
+                                    Login
+                                </a>
+                            </div>
+                        `);
+                    } else {
+                        container.html(`
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                                <p>${response.message}</p>
+                            </div>
+                        `);
+                    }
+                }
             },
             error: function() {
                 container.html(`
@@ -352,9 +393,8 @@ $(document).ready(function () {
             cancelled: "bg-red-100 text-red-800",
         };
 
-        const walkerImage =
-            booking.walkerImage || "https://via.placeholder.com/40x40?text=W";
-        const walkerName = booking.walkerName || "Unknown Walker";
+        const walkerImage = booking.walker_image || "https://via.placeholder.com/40x40?text=W";
+        const walkerName = booking.walker_name || "Unknown Walker";
 
         return `
             <div class="bg-gray-50 rounded-lg p-4 mb-4">
@@ -467,7 +507,7 @@ $(document).ready(function () {
             )
         ) {
             $.ajax({
-                url: "api/update_booking_status.php",
+                url: API_BASE+"update_booking_status.php",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({
@@ -594,6 +634,64 @@ $(document).ready(function () {
         }, 3000);
     }
 
+    function checkAuthentication() {
+        $.ajax({
+            url: 'api/check_customer_auth.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.authenticated) {
+                    updateHeaderForLoggedInUser(response.user);
+                } else {
+                    updateHeaderForLoggedOutUser();
+                }
+            },
+            error: function() {
+                updateHeaderForLoggedOutUser();
+            }
+        });
+    }
+    
+    function updateHeaderForLoggedInUser(user) {
+        $('#loginLink').hide();
+        $('#userMenu').removeClass('hidden').show();
+       $('#userName').text('Welcome, ' + (user.first_name || user.name || 'Customer'));
+    }
+    
+    function updateHeaderForLoggedOutUser() {
+        $('#loginLink').show();
+        $('#userMenu').hide().addClass('hidden');
+        $('#userName').text('Welcome!');
+    }
+
+    // Logout functionality
+    function logout() {
+       $.ajax({
+            url: 'api/customer_logout.php',
+            method: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    updateHeaderForLoggedOutUser();
+                    showToast('Logged out successfully', 'success');
+                    // Refresh bookings to clear customer-specific data
+                    loadBookings();
+                    // Redirect to home page
+                    showPage("home");
+                }
+            },
+            error: function() {
+                showToast('Logout failed', 'error');
+            }
+        });
+    }
+
+    // Logout button event handler
+    $("#logoutBtn").click(function() {
+        logout();
+    });
+
     // Initial event binding
     bindWalkerEvents();
+    checkAuthentication();
 });

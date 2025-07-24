@@ -1,6 +1,8 @@
 import mysql from 'mysql2/promise';
-import { drizzle } from 'drizzle-orm/mysql2';
 import * as schema from "@shared/schema";
+import { Pool } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from "ws";
 
 // XAMPP MySQL configuration with fallback
 const DATABASE_URL = process.env.DATABASE_URL || 'mysql://root:@localhost:3306/dogWalk';

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserProfile(id: number, profile: UpdateUserProfile): Promise<User | undefined>;
   
@@ -34,10 +35,13 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
-    const result = await db.insert(users).values(insertUser);
-    const insertId = (result as any).insertId;
-    const [user] = await db.select().from(users).where(eq(users.id, insertId));
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
@@ -62,8 +66,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWalker(insertWalker: InsertWalker): Promise<Walker> {
-    const result = await db.insert(walkers).values(insertWalker);
-    const [walker] = await db.select().from(walkers).where(eq(walkers.id, Number(result.insertId)));
+    const [walker] = await db.insert(walkers).values(insertWalker).returning();
     return walker;
   }
 
@@ -87,8 +90,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
-    const result = await db.insert(bookings).values(insertBooking);
-    const [booking] = await db.select().from(bookings).where(eq(bookings.id, Number(result.insertId)));
+    const [booking] = await db.insert(bookings).values(insertBooking).returning();
     return booking;
   }
 
@@ -106,10 +108,10 @@ export class DatabaseStorage implements IStorage {
 
   async deleteWalker(id: number): Promise<boolean> {
     const result = await db.delete(walkers).where(eq(walkers.id, id));
-    return result.affectedRows > 0;
+    return (result as any).affectedRows > 0;
   }
 }
 
 // Use demo storage for now since database connection is failing
-import { demoStorage } from "./demo-storage";
-export const storage = demoStorage;
+// Use database storage for actual database insertion
+export const storage = new DatabaseStorage();

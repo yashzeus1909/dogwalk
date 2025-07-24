@@ -254,7 +254,7 @@
 
         function loadWalkerData(walkerId) {
             $.ajax({
-                url: '/api/walkers',
+                url: '/dogWalk/api/walkers.php',
                 method: 'GET',
                 dataType: 'json',
                 success: function(response) {

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role-Based Authentication Test - PawWalk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <a href="/navigation_links.html" class="inline-block hover:opacity-80">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    <i class="fas fa-paw text-blue-500"></i> PawWalk Role Test Dashboard
+                </h1>
+            </a>
+        </div>
+        
+        <!-- Current Status -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-green-600">✅ Role-Based System Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 border border-blue-200 rounded p-4">
+                    <h3 class="font-medium text-blue-800">Customer Role</h3>
+                    <p class="text-sm text-blue-600">Find and book dog walkers</p>
+                    <ul class="text-xs text-blue-600 mt-2">
+                        <li>• Search walkers</li>
+                        <li>• Book services</li>
+                        <li>• Manage bookings</li>
+                    </ul>
+                </div>
+                <div class="bg-green-50 border border-green-200 rounded p-4">
+                    <h3 class="font-medium text-green-800">Walker Role</h3>
+                    <p class="text-sm text-green-600">Provide walking services</p>
+                    <ul class="text-xs text-green-600 mt-2">
+                        <li>• Manage availability</li>
+                        <li>• Accept bookings</li>
+                        <li>• Track earnings</li>
+                    </ul>
+                </div>
+                <div class="bg-purple-50 border border-purple-200 rounded p-4">
+                    <h3 class="font-medium text-purple-800">Admin Role</h3>
+                    <p class="text-sm text-purple-600">System administration</p>
+                    <ul class="text-xs text-purple-600 mt-2">
+                        <li>• Manage users</li>
+                        <li>• System oversight</li>
+                        <li>• Analytics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Registration Test -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Quick Role Registration Test</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Customer Registration -->
+                <div class="border border-blue-200 rounded-lg p-4">
+                    <h3 class="font-medium text-blue-800 mb-3">Register as Customer</h3>
+                    <button onclick="registerTestUser('customer')" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                        Create Test Customer
+                    </button>
+                </div>
+                
+                <!-- Walker Registration -->
+                <div class="border border-green-200 rounded-lg p-4">
+                    <h3 class="font-medium text-green-800 mb-3">Register as Walker</h3>
+                    <button onclick="registerTestUser('walker')" class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+                        Create Test Walker
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Test -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Login & Redirects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="/common_login.html" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <i class="fas fa-sign-in-alt text-2xl text-blue-500 mb-2"></i>
+                    <h3 class="font-medium">Common Login Page</h3>
+                    <p class="text-sm text-gray-600">Universal login/register</p>
+                </a>
+                
+                <a href="/customer_profile.html" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <i class="fas fa-user text-2xl text-blue-500 mb-2"></i>
+                    <h3 class="font-medium">Customer Dashboard</h3>
+                    <p class="text-sm text-gray-600">Customer-only access</p>
+                </a>
+                
+                <a href="/walker_profile.html" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <i class="fas fa-dog text-2xl text-green-500 mb-2"></i>
+                    <h3 class="font-medium">Walker Dashboard</h3>
+                    <p class="text-sm text-gray-600">Walker-only access</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Current Users -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Current Users by Role</h2>
+            <button onclick="loadUsersByRole()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mb-4">
+                Refresh User List
+            </button>
+            <div id="usersByRole" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border border-blue-200 rounded p-4">
+                    <h3 class="font-medium text-blue-800 mb-2">Customers</h3>
+                    <div id="customersList" class="text-sm text-gray-600">Loading...</div>
+                </div>
+                <div class="border border-green-200 rounded p-4">
+                    <h3 class="font-medium text-green-800 mb-2">Walkers</h3>
+                    <div id="walkersList" class="text-sm text-gray-600">Loading...</div>
+                </div>
+                <div class="border border-purple-200 rounded p-4">
+                    <h3 class="font-medium text-purple-800 mb-2">Admins</h3>
+                    <div id="adminsList" class="text-sm text-gray-600">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+            <div id="modalContent" class="text-center">
+                <div id="modalMessage" class="mb-4"></div>
+                <button onclick="closeModal()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load users by role on page load
+        $(document).ready(function() {
+            loadUsersByRole();
+        });
+
+        function registerTestUser(role) {
+            const timestamp = Date.now();
+            const userData = {
+                firstName: role.charAt(0).toUpperCase() + role.slice(1),
+                lastName: 'Test',
+                email: `${role}${timestamp}@test.com`,
+                password: 'password123',
+                phone: `555-${Math.floor(Math.random() * 9000) + 1000}`,
+                address: `${role.charAt(0).toUpperCase() + role.slice(1)} Test Street`,
+                role: role
+            };
+
+            $.ajax({
+                url: 'http://localhost/dogWalk/api/register',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(userData),
+                success: function(response) {
+                    showModal(`
+                        <i class="fas fa-check-circle text-green-500 text-3xl mb-3"></i>
+                        <h3 class="font-semibold text-lg mb-2">Test ${role.charAt(0).toUpperCase() + role.slice(1)} Created!</h3>
+                        <p class="text-sm text-gray-600 mb-2">Email: ${userData.email}</p>
+                        <p class="text-sm text-gray-600">Password: password123</p>
+                    `);
+                    loadUsersByRole(); // Refresh the user list
+                },
+                error: function(xhr) {
+                    const error = JSON.parse(xhr.responseText);
+                    showModal(`
+                        <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-3"></i>
+                        <h3 class="font-semibold text-lg mb-2">Registration Failed</h3>
+                        <p class="text-sm text-gray-600">${error.message}</p>
+                    `);
+                }
+            });
+        }
+
+        function loadUsersByRole() {
+            $.get('http://localhost/dogWalk/api/users', function(users) {
+                const customers = users.filter(u => u.role === 'customer' || !u.role);
+                const walkers = users.filter(u => u.role === 'walker');
+                const admins = users.filter(u => u.role === 'admin');
+
+                $('#customersList').html(
+                    customers.length > 0 
+                    ? customers.map(u => `<div class="mb-1">• ${u.firstName} ${u.lastName}</div>`).join('')
+                    : '<div class="text-gray-500">No customers</div>'
+                );
+
+                $('#walkersList').html(
+                    walkers.length > 0 
+                    ? walkers.map(u => `<div class="mb-1">• ${u.firstName} ${u.lastName}</div>`).join('')
+                    : '<div class="text-gray-500">No walkers</div>'
+                );
+
+                $('#adminsList').html(
+                    admins.length > 0 
+                    ? admins.map(u => `<div class="mb-1">• ${u.firstName} ${u.lastName}</div>`).join('')
+                    : '<div class="text-gray-500">No admins</div>'
+                );
+            }).fail(function() {
+                $('#customersList, #walkersList, #adminsList').html('<div class="text-red-500">Failed to load</div>');
+            });
+        }
+
+        function showModal(content) {
+            $('#modalMessage').html(content);
+            $('#resultModal').removeClass('hidden').addClass('flex');
+        }
+
+        function closeModal() {
+            $('#resultModal').removeClass('flex').addClass('hidden');
+        }
+    </script>
+</body>
+</html>

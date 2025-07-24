@@ -1,5 +1,6 @@
 // Walker Dashboard JavaScript
 let currentWalker = null;
+const API_BASE = '/dogWalk/api/';
 let currentBookings = [];
 
 // Initialize dashboard
@@ -41,7 +42,7 @@ async function handleLogin(event) {
         const formData = new FormData();
         formData.append('email', email);
 
-        const response = await fetch('api/walker_auth.php', {
+        const response = await fetch(API_BASE+'walker_auth.php', {
             method: 'POST',
             body: formData
         });
@@ -85,7 +86,7 @@ async function loadBookings(statusFilter = '', limit = 50, offset = 0) {
     showLoading(true);
 
     try {
-        let url = `api/walker_booking_list.php?walker_id=${currentWalker.id}&limit=${limit}&offset=${offset}`;
+        let url = `${API_BASE}walker_booking_list.php?walker_id=${currentWalker.id}&limit=${limit}&offset=${offset}`;
         if (statusFilter) {
             url += `&status=${statusFilter}`;
         }
@@ -213,7 +214,7 @@ async function updateBookingStatus(bookingId, newStatus) {
     showLoading(true);
 
     try {
-        const response = await fetch('api/walker_booking_actions.php', {
+        const response = await fetch(API_BASE+'walker_booking_actions.php', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -250,7 +251,7 @@ async function deleteBooking(bookingId) {
     showLoading(true);
 
     try {
-        const response = await fetch('api/walker_booking_actions.php', {
+        const response = await fetch(API_BASE+'walker_booking_actions.php', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -282,7 +283,7 @@ async function loadWalkerProfile() {
     if (!currentWalker) return;
 
     try {
-        const response = await fetch(`api/walker_profile_update.php?walker_id=${currentWalker.id}`);
+        const response = await fetch(`${API_BASE}walker_profile_update.php?walker_id=${currentWalker.id}`);
         const result = await response.json();
 
         if (result.success) {
@@ -302,7 +303,7 @@ async function updateWalkerProfile(profileData) {
     showLoading(true);
 
     try {
-        const response = await fetch('api/walker_profile_update.php', {
+        const response = await fetch(API_BASE+'walker_profile_update.php', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

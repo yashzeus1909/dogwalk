@@ -24,7 +24,7 @@
             display: none;
         }
         .loading.show {
-            display: block;
+            display: block !important;
         }
         .modal {
             display: none;
@@ -53,23 +53,22 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-blue-600">🐾 PawWalk</h1>
+                    <a href="/navigation_links.html" class="flex items-center hover:opacity-80">
+                        <h1 class="text-2xl font-bold text-blue-600">🐾 PawWalk</h1>
+                    </a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="addWalker.php" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                        Add Walker
-                    </a>
-                    <a href="admin_login.php" class="text-sm text-green-600 hover:text-green-800 font-medium">
-                        Walker Login
+                    <a href="/navigation_links.html" class="text-sm text-gray-600 hover:text-gray-800 font-medium">
+                        <i class="fas fa-home mr-1"></i>Home
                     </a>
                     <div id="userAuth">
-                        <a href="customer_login.php" class="text-sm text-purple-600 hover:text-purple-800 font-medium" id="loginLink">
-                            Customer Login
+                        <a href="common_login.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium" id="loginLink">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Login / Register
                         </a>
                         <div id="userMenu" class="hidden flex items-center space-x-2">
                             <span class="text-sm text-gray-700" id="userName">Welcome!</span>
                             <button id="logoutBtn" class="text-sm text-red-600 hover:text-red-800 font-medium">
-                                Logout
+                                <i class="fas fa-sign-out-alt mr-1"></i>Logout
                             </button>
                         </div>
                     </div>

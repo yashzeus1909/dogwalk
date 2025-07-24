@@ -1,105 +1,136 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+// Walkers API - fetch walkers from unified users table based on role
+require_once 'config.php';
 
-include_once '../config/database.php';
-include_once '../models/Walker.php';
+setJsonHeaders();
 
-$database = new Database();
-$db = $database->getConnection();
-
-if ($db === null) {
-    http_response_code(500);
-    echo json_encode(array("message" => "Database connection failed."));
-    exit();
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
 }
 
-$walker = new Walker($db);
-
-$method = $_SERVER['REQUEST_METHOD'];
-
-switch($method) {
-    case 'GET':
-        if(isset($_GET['search'])) {
-            $location = isset($_GET['location']) ? $_GET['location'] : "";
-            $service_type = isset($_GET['service_type']) ? $_GET['service_type'] : "";
-            $stmt = $walker->search($location, $service_type);
-        } else {
-            $stmt = $walker->read();
+try {
+    $db = getDatabaseConnection();
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        // Fetch all walkers (users with role = 'walker')
+        $stmt = $db->query("
+            SELECT 
+                id,
+                CONCAT(first_name, ' ', last_name) as name,
+                email,
+                profile_image_url as image,
+                rating,
+                review_count,
+                distance,
+                price_per_hour as price,
+                description,
+                availability,
+                badges,
+                services,
+                background_check,
+                insured,
+                certified
+            FROM users 
+            WHERE role = 'walker' AND is_active = TRUE
+            ORDER BY rating DESC, review_count DESC
+        ");
+        
+        $walkers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Convert text fields to arrays for frontend compatibility
+        foreach ($walkers as &$walker) {
+            $walker['badges'] = $walker['badges'] ? explode(',', $walker['badges']) : [];
+            $walker['services'] = $walker['services'] ? explode(',', $walker['services']) : [];
+            $walker['rating'] = (float) $walker['rating'];
+            $walker['price'] = (float) $walker['price'];
+            $walker['background_check'] = (bool) $walker['background_check'];
+            $walker['insured'] = (bool) $walker['insured'];
+            $walker['certified'] = (bool) $walker['certified'];
         }
         
-        $walkers_arr = array();
-
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            extract($row);
+        echo json_encode([
+            'success' => true,
+            'walkers' => $walkers,
+            'count' => count($walkers)
+        ]);
+        
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Create new walker (register user with role = 'walker')
+        $input = getJsonInput();
+        
+        $requiredFields = ['firstName', 'lastName', 'email', 'password', 'phone', 'pricePerHour'];
+        foreach ($requiredFields as $field) {
+            if (!isset($input[$field]) || empty(trim($input[$field]))) {
+                echo json_encode(['success' => false, 'message' => ucfirst($field) . ' is required']);
+                exit;
+            }
+        }
+        
+        $firstName = trim($input['firstName']);
+        $lastName = trim($input['lastName']);
+        $email = trim($input['email']);
+        $password = $input['password'];
+        $phone = trim($input['phone']);
+        $address = trim($input['address'] ?? '');
+        $pricePerHour = floatval($input['pricePerHour']);
+        $description = trim($input['description'] ?? '');
+        $services = isset($input['services']) ? implode(',', $input['services']) : '';
+        $availability = trim($input['availability'] ?? '');
+        
+        // Validate email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid email format']);
+            exit;
+        }
+        
+        // Check if email already exists
+        $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetch()) {
+            echo json_encode(['success' => false, 'message' => 'Email already registered']);
+            exit;
+        }
+        
+        // Hash password
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        
+        // Insert new walker
+        $db->beginTransaction();
+        try {
+            $stmt = $db->prepare("
+                INSERT INTO users (
+                    first_name, last_name, email, password, phone, address, role,
+                    price_per_hour, description, services, availability,
+                    created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, 'walker', ?, ?, ?, ?, NOW(), NOW())
+            ");
             
-            // Convert MySQL JSON to PHP array
-            $badges_array = array();
-            if ($badges) {
-                $decoded_badges = json_decode($badges, true);
-                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_badges)) {
-                    $badges_array = $decoded_badges;
-                }
+            $result = $stmt->execute([
+                $firstName, $lastName, $email, $hashedPassword, $phone, $address,
+                $pricePerHour, $description, $services, $availability
+            ]);
+            
+            if (!$result) {
+                throw new Exception("Failed to create walker profile");
             }
             
-            $walker_item = array(
-                "id" => (int)$id,
-                "name" => $name,
-                "image" => $image,
-                "rating" => (int)$rating,
-                "reviewCount" => (int)$review_count,
-                "distance" => $distance,
-                "price" => (int)$price,
-                "description" => $description,
-                "availability" => $availability,
-                "badges" => $badges_array,
-                "backgroundCheck" => (bool)$background_check,
-                "insured" => (bool)$insured,
-                "certified" => (bool)$certified
-            );
-
-            array_push($walkers_arr, $walker_item);
+            $walkerId = $db->lastInsertId();
+            $db->commit();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Walker registered successfully',
+                'walkerId' => $walkerId
+            ]);
+            
+        } catch (Exception $e) {
+            $db->rollback();
+            throw $e;
         }
-
-        http_response_code(200);
-        echo json_encode($walkers_arr);
-        break;
-
-    case 'POST':
-        $data = json_decode(file_get_contents("php://input"));
-
-        if(!empty($data->name) && !empty($data->price)) {
-            $walker->name = $data->name;
-            $walker->image = $data->image ?? '';
-            $walker->rating = $data->rating ?? 0;
-            $walker->review_count = $data->review_count ?? 0;
-            $walker->distance = $data->distance ?? '';
-            $walker->price = $data->price;
-            $walker->description = $data->description ?? '';
-            $walker->availability = $data->availability ?? '';
-            $walker->badges = isset($data->badges) ? '{' . implode(',', $data->badges) . '}' : '{}';
-            $walker->background_check = $data->background_check ?? false;
-            $walker->insured = $data->insured ?? false;
-            $walker->certified = $data->certified ?? false;
-
-            if($walker->create()) {
-                http_response_code(201);
-                echo json_encode(array("message" => "Walker was created."));
-            } else {
-                http_response_code(503);
-                echo json_encode(array("message" => "Unable to create walker."));
-            }
-        } else {
-            http_response_code(400);
-            echo json_encode(array("message" => "Unable to create walker. Data is incomplete."));
-        }
-        break;
-
-    default:
-        http_response_code(405);
-        echo json_encode(array("message" => "Method not allowed."));
-        break;
+    }
+    
+} catch (Exception $e) {
+    error_log("Walkers API error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
 ?>

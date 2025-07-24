@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database System Test Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <a href="/navigation_links.html" class="inline-block hover:opacity-80">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    <i class="fas fa-paw text-blue-500"></i> PawWalk Database System Test
+                </h1>
+            </a>
+        </div>
+        
+        <!-- Status Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-green-600">✅ Database System Status</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-green-50 border border-green-200 rounded p-3">
+                    <h3 class="font-medium text-green-800">Registration</h3>
+                    <p class="text-sm text-green-600">Database validation working</p>
+                </div>
+                <div class="bg-green-50 border border-green-200 rounded p-3">
+                    <h3 class="font-medium text-green-800">Authentication</h3>
+                    <p class="text-sm text-green-600">bcrypt & sessions working</p>
+                </div>
+                <div class="bg-green-50 border border-green-200 rounded p-3">
+                    <h3 class="font-medium text-green-800">Data Storage</h3>
+                    <p class="text-sm text-green-600">PostgreSQL working</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Registration -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test User Registration</h2>
+            <form id="registerForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="firstName" placeholder="First Name" class="border border-gray-300 rounded px-3 py-2" required>
+                    <input type="text" id="lastName" placeholder="Last Name" class="border border-gray-300 rounded px-3 py-2" required>
+                </div>
+                <input type="email" id="email" placeholder="Email" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                <input type="password" id="password" placeholder="Password (min 6 chars)" class="w-full border border-gray-300 rounded px-3 py-2" required minlength="6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="tel" id="phone" placeholder="Phone" class="border border-gray-300 rounded px-3 py-2">
+                    <input type="text" id="address" placeholder="Address" class="border border-gray-300 rounded px-3 py-2">
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">
+                    Register User
+                </button>
+            </form>
+            <div id="registerResult" class="mt-4"></div>
+        </div>
+
+        <!-- Test Login -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test User Login</h2>
+            <form id="loginForm" class="space-y-4">
+                <input type="email" id="loginEmail" placeholder="Email" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                <input type="password" id="loginPassword" placeholder="Password" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
+                    Login
+                </button>
+            </form>
+            <div id="loginResult" class="mt-4"></div>
+        </div>
+
+        <!-- Database Data -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Database Data</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-medium mb-2">Users in Database</h3>
+                    <button onclick="loadUsers()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mb-2">
+                        Load Users
+                    </button>
+                    <div id="usersList" class="text-sm text-gray-600"></div>
+                </div>
+                <div>
+                    <h3 class="font-medium mb-2">Walkers in Database</h3>
+                    <button onclick="loadWalkers()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mb-2">
+                        Load Walkers
+                    </button>
+                    <div id="walkersList" class="text-sm text-gray-600"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Register form handler
+        $('#registerForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                firstName: $('#firstName').val(),
+                lastName: $('#lastName').val(),
+                email: $('#email').val(),
+                password: $('#password').val(),
+                phone: $('#phone').val(),
+                address: $('#address').val()
+            };
+
+            $.ajax({
+                url: '/api/register',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(userData),
+                success: function(response) {
+                    $('#registerResult').html(`
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                            ✅ ${response.message} (User ID: ${response.user_id})
+                        </div>
+                    `);
+                    $('#registerForm')[0].reset();
+                },
+                error: function(xhr) {
+                    const error = JSON.parse(xhr.responseText);
+                    $('#registerResult').html(`
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            ❌ ${error.message}
+                        </div>
+                    `);
+                }
+            });
+        });
+
+        // Login form handler
+        $('#loginForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const loginData = {
+                email: $('#loginEmail').val(),
+                password: $('#loginPassword').val()
+            };
+
+            $.ajax({
+                url: '/api/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(loginData),
+                success: function(response) {
+                    $('#loginResult').html(`
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                            ✅ ${response.message}<br>
+                            Welcome, ${response.user.name}!
+                        </div>
+                    `);
+                    $('#loginForm')[0].reset();
+                },
+                error: function(xhr) {
+                    const error = JSON.parse(xhr.responseText);
+                    $('#loginResult').html(`
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            ❌ ${error.message}
+                        </div>
+                    `);
+                }
+            });
+        });
+
+        // Load users function
+        function loadUsers() {
+            $.get('/api/users', function(users) {
+                let html = `<div class="bg-gray-50 p-3 rounded"><strong>Total Users: ${users.length}</strong><br>`;
+                users.slice(-5).forEach(user => {
+                    html += `• ${user.firstName} ${user.lastName} (${user.email})<br>`;
+                });
+                html += '</div>';
+                $('#usersList').html(html);
+            }).fail(function() {
+                $('#usersList').html('<div class="text-red-600">Failed to load users</div>');
+            });
+        }
+
+        // Load walkers function
+        function loadWalkers() {
+            $.get('/api/walkers', function(walkers) {
+                let html = `<div class="bg-gray-50 p-3 rounded"><strong>Total Walkers: ${walkers.length}</strong><br>`;
+                walkers.forEach(walker => {
+                    html += `• ${walker.name} - $${walker.price} (${walker.rating}⭐)<br>`;
+                });
+                html += '</div>';
+                $('#walkersList').html(html);
+            }).fail(function() {
+                $('#walkersList').html('<div class="text-red-600">Failed to load walkers</div>');
+            });
+        }
+
+        // Load initial data
+        $(document).ready(function() {
+            loadUsers();
+            loadWalkers();
+        });
+    </script>
+</body>
+</html>

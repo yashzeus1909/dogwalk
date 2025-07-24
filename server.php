@@ -1,41 +1,36 @@
 <?php
-// Simple PHP development server router
-$request_uri = $_SERVER['REQUEST_URI'];
-$path = parse_url($request_uri, PHP_URL_PATH);
+// PawWalk PHP Server
+echo "Starting PawWalk PHP Server on port 5000...\n";
 
-// Serve static files directly
-if (preg_match('/\.(css|js|png|jpg|jpeg|gif|ico|svg)$/', $path)) {
-    return false; // Let the built-in server handle static files
+// Set error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Test database connection
+$host = getenv('PGHOST');
+$port = getenv('PGPORT');
+$dbname = getenv('PGDATABASE');
+$user = getenv('PGUSER');
+$password = getenv('PGPASSWORD');
+
+if (!$host || !$port || !$dbname || !$user || !$password) {
+    echo "Database configuration not found\n";
+    echo "Required environment variables: PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD\n";
+    exit(1);
 }
 
-// API routing
-if (strpos($path, '/api/') === 0) {
-    $api_file = __DIR__ . $path . '.php';
-    if (file_exists($api_file)) {
-        include $api_file;
-        return true;
-    }
-    
-    // Handle API endpoints without .php extension
-    $api_path = str_replace('/api/', '', $path);
-    $api_file = __DIR__ . '/api/' . $api_path . '.php';
-    if (file_exists($api_file)) {
-        include $api_file;
-        return true;
-    }
-    
-    // API endpoint not found
-    http_response_code(404);
-    echo json_encode(['error' => 'API endpoint not found']);
-    return true;
+try {
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $pdo = new PDO($dsn, $user, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    echo "Database connection successful!\n";
+} catch (PDOException $e) {
+    echo "Database connection failed: " . $e->getMessage() . "\n";
+    exit(1);
 }
 
-// Serve index.html for all other requests (SPA routing)
-if ($path === '/' || !file_exists(__DIR__ . $path)) {
-    include __DIR__ . '/index.html';
-    return true;
-}
-
-// Let the server handle other files
-return false;
+// Start the server
+echo "Server starting at http://0.0.0.0:5000\n";
+$command = 'php -S 0.0.0.0:5000 start_php_server.php';
+exec($command);
 ?>

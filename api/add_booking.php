@@ -8,10 +8,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-require_once '../config/database.php';
+// require_once '../config/database.php';
+session_start();
 
 try {
-    $input = json_decode(file_get_contents('php://input'), true);
+     // Get POST data from environment variable
+    $inputData = getenv('POST_DATA') ?: getenv('HTTP_RAW_POST_DATA') ?: '';
+
+    // If no environment data, try to read from stdin
+    if (empty($inputData)) {
+        $inputData = file_get_contents('php://stdin');
+    }
+    $input = json_decode($inputData, true);
     
     if (!$input) {
         echo json_encode(['success' => false, 'message' => 'Invalid JSON data']);
@@ -29,8 +37,14 @@ try {
         }
     }
     
-    $database = new Database();
-    $db = $database->getConnection();
+    // $database = new Database();
+    // $db = $database->getConnection();
+    // Connect to MySQL database
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $port = getenv('DB_PORT') ?: '3306';
+    $dbname = getenv('DB_DATABASE') ?: 'dog_walker_app';
+    $user = getenv('DB_USERNAME') ?: 'root';
+    $password = getenv('DB_PASSWORD') ?: '';
     
     if (!$db) {
         echo json_encode(['success' => false, 'message' => 'Database connection failed']);
@@ -53,8 +67,10 @@ try {
     $stmt->execute([$input['customer_email']]);
     $existing_user = $stmt->fetch();
     
-    if ($existing_user) {
-        $user_id = $existing_user['id'];
+    // Check if user is authenticated
+    if (isset($_SESSION['user_id']) && isset($_SESSION['user_email'])) {
+        $user_id = $_SESSION['user_id'];
+        $booking_email = $_SESSION['user_email'];
     } else {
         // Create new user record for guest booking
         $name_parts = explode(' ', trim($input['customer_name']), 2);
@@ -86,7 +102,7 @@ try {
         $input['booking_time'],
         $input['duration'],
         $input['phone'],
-        $input['customer_email'],
+        $booking_email,
         $input['address'],
         $input['special_notes'] ?? '',
         $input['total_price']
